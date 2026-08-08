@@ -1,0 +1,157 @@
+/* Calendar page: month grid, header, week-number buttons, day cells. */
+
+.calender {
+    width: min(300px, 100%); /* caps at 300px on desktop, shrinks to fit on narrow phones */
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0.3);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    margin-left: auto;
+    margin-right: auto;
+
+}
+
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+}
+
+.header button {
+    width: 30px;
+    height: 30px;
+    color: #cecccc;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.header button:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.days {
+    font-size: 10px;
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+    color: #cecdcd;
+}
+
+.monthYear {
+
+
+    display: flex;
+    color: rgb(216, 212, 212);
+
+}
+
+
+
+.calenderBody {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    min-width: 0; /* lets .dates shrink on narrow screens instead of overflowing */
+}
+
+.weekButton {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding-top: 10px;
+    flex: 0 0 auto; /* keep its own width fixed - .dates is the one that should shrink */
+}
+
+.weekButton div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 44px;
+    box-sizing: border-box;
+    color: #cecccc;
+    font-size: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.weekButton div:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.dates {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    padding: 10px;
+    min-width: 0; /* the core fix for grid/flex children overflowing on narrow screens */
+}
+
+.dates div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+    box-sizing: border-box;
+    color: #cecccc;
+    text-align: center;
+    padding: 6px 0;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.dates div:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.dates div:empty {
+    visibility: hidden;
+}
+
+/* Week-number button only: the neon purple/magenta glow from background.jpg,
+   shown only once every day that week has both weight and steps logged
+   (see isWeekFullyComplete in calender.js). Day cells use dots instead (base.css). */
+.weekButton div.has-full-entry {
+    border: 3px solid rgba(179, 102, 217, 0.9);
+    background: rgba(179, 102, 217, 0.22);
+    box-shadow: 0 0 8px rgba(179, 102, 217, 0.5);
+}
+
+/* "This week has at least one photo" - an outline instead of a border so it
+   layers independently on top of has-full-entry above instead of fighting it
+   for the same border property. */
+.weekButton div.has-photo-entry {
+    outline: 2px solid rgba(58, 201, 176, 0.9);
+    outline-offset: 2px;
+    box-shadow: 0 0 6px rgba(58, 201, 176, 0.45);
+}
+
+/* Weekday label shown above the day number in every date box (skips empty offset boxes) */
+.dates div:not(:empty)::before {
+    display: block;
+    font-size: 8px;
+    text-transform: uppercase;
+    opacity: 0.6;
+}
+
+.dates div:nth-child(7n+1):not(:empty)::before { content: "Mon"; }
+.dates div:nth-child(7n+2):not(:empty)::before { content: "Tue"; }
+.dates div:nth-child(7n+3):not(:empty)::before { content: "Wed"; }
+.dates div:nth-child(7n+4):not(:empty)::before { content: "Thu"; }
+.dates div:nth-child(7n+5):not(:empty)::before { content: "Fri"; }
+.dates div:nth-child(7n+6):not(:empty)::before { content: "Sat"; }
+.dates div:nth-child(7n):not(:empty)::before { content: "Sun"; }

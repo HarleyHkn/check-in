@@ -1,0 +1,127 @@
+/* Shared modal shell - used by BOTH the single-day popup (modal.js) and the
+   week popup (week-modal.js), plus the login/signup forms reuse the same
+   overlay/box. Weight/steps-specific input styling is shared between the two
+   popups too (see the selector list below), since both build the same kind
+   of input fields. */
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-overlay.open {
+    display: flex;
+}
+
+.modal {
+    position: relative;
+    width: 300px;
+    max-width: 90%;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    color: #dde3e4;
+}
+
+.modal-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 30px;
+    height: 30px;
+    color: #cecccc;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.modal-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+#modalTitle {
+    margin-top: 0;
+    font-size: 1rem;
+    text-align: center;
+}
+
+.weekModalRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+
+#dayWeightInput,
+#dayStepsInput,
+.weekModalInput,
+.weekModalStepsInput {
+    width: 80px;
+    min-width: 0; /* lets the input shrink on a narrow phone instead of overflowing */
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 6px;
+    padding: 4px 8px;
+    color: #dde3e4;
+    font-size: 0.9rem;
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+.day-input-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.small-delete-button {
+    flex: 0 0 auto;
+    width: 24px;
+    height: 24px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 6px;
+    color: #cecccc;
+    font-size: 0.75rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.small-delete-button:hover {
+    color: #ffd9d0;
+    background: rgba(226, 90, 59, 0.25);
+    border-color: rgba(226, 90, 59, 0.5);
+}
+
+#dayWeightInput::-webkit-inner-spin-button,
+#dayWeightInput::-webkit-outer-spin-button,
+#dayStepsInput::-webkit-inner-spin-button,
+#dayStepsInput::-webkit-outer-spin-button,
+.weekModalInput::-webkit-inner-spin-button,
+.weekModalInput::-webkit-outer-spin-button,
+.weekModalStepsInput::-webkit-inner-spin-button,
+.weekModalStepsInput::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+#modalBody > p {
+    margin-top: 12px;
+    font-weight: bold;
+    text-align: center;
+}

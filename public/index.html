@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>My test page</title>
+
+    <!-- ============================================================
+         STYLESHEETS
+         Base styles first (reset + shared classes used by 2+ pages), then one
+         file per page/component. photos.css loads before weekly.css since
+         weekly.css extends one of its classes.
+         ============================================================ -->
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/modal.css" />
+    <link rel="stylesheet" href="css/calendar.css" />
+    <link rel="stylesheet" href="css/home.css" />
+    <link rel="stylesheet" href="css/week-avg-panel.css" />
+    <link rel="stylesheet" href="css/overview.css" />
+    <link rel="stylesheet" href="css/auth.css" />
+    <link rel="stylesheet" href="css/measurements.css" />
+    <link rel="stylesheet" href="css/photos.css" />
+    <link rel="stylesheet" href="css/weekly.css" />
+  </head>
+  <body>
+
+    <!-- ============================================================
+         HOME PAGE ("Check In")
+         Date/login header, Weight/Steps toggle box, the Mon-Sun day strip,
+         and the Avg weight/Avg steps tiles. See js/home-page.js.
+         ============================================================ -->
+    <div class="page" id="homePage">
+      <!-- Date/login header - only shown on the Home page, not the other tabs -->
+      <div class="title-page" id="title-page">
+
+        <h1 class="center-text">Check In</h1>
+        <!-- Puts today's date below, e.g. "August 8" - js calls displayDate() and fills this in -->
+        <p class="center-text"><div class="center-text" id="dateBox"></div></p>
+
+        <!-- Login status: buttons to log in / out - the buttons themselves show login state, no separate status text needed. -->
+        <div class="center-container" id="authStatus">
+          <button class="glass-button" id="loginButton">Log In</button>
+          <button class="glass-button" id="logoutButton" style="display: none;">Log Out</button>
+        </div>
+      </div>
+
+      <div class="weeklyAvg" id="WeeklyAvg">
+
+        <!-- Weight/Steps toggle - same classes as the day popup's toggle -->
+        <div class="week-modal-toggle" id="homeMetricToggle">
+          <button type="button" class="week-modal-toggle-button active" data-metric="weight">Weight</button>
+          <button type="button" class="week-modal-toggle-button" data-metric="steps">Steps</button>
+        </div>
+
+        <div class="week-modal-tab" id="homeWeightTab">
+          <h3 class="center-text" id="homeWeightHeading">Today's Weight</h3>
+          <div class="day-input-row">
+            <input class="input-box" id="weight" type="number" placeholder="Enter Weight" style="margin: 0;"/>
+            <button class="small-delete-button" id="deleteWeightButton" title="Delete this weight entry" style="display: none;">✕</button>
+          </div>
+          <button class="glass-button" id="submit-button">Submit</button>
+        </div>
+
+        <div class="week-modal-tab" id="homeStepsTab" style="display: none;">
+          <h3 class="center-text" id="homeStepsHeading">Today's Steps</h3>
+          <div class="day-input-row">
+            <input class="input-box" id="homeStepsInput" type="number" placeholder="Enter Steps" style="margin: 0;"/>
+            <button class="small-delete-button" id="deleteStepsButton" title="Delete this steps entry" style="display: none;">✕</button>
+          </div>
+          <button class="glass-button" id="submitStepsButton">Submit</button>
+        </div>
+
+        <!-- Which week this strip is showing -->
+        <div class="home-week-label" id="homeWeekLabel"></div>
+
+        <!-- Mon-Sun strip: today highlighted, a dot marks days with an entry, click a
+             day to select it - the box above then edits THAT day instead of today -->
+        <div class="day-strip" id="weekStrip"></div>
+
+        <!-- Both this week's averages, same stat-row/stat-tile pattern as Overview -->
+        <div class="stat-row">
+          <div class="stat-tile weight">
+            <span class="value" id="homeWeightAverage"></span>
+            <span class="label">Avg weight</span>
+          </div>
+          <div class="stat-tile steps">
+            <span class="value" id="homeStepsAverage"></span>
+            <span class="label">Avg steps</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         OVERVIEW PAGE
+         Pick a week, see its avg weight/steps, an 8-week trend chart for
+         weight and steps, and a combined measurements trend. See js/overview.js.
+         ============================================================ -->
+    <div class="page" id="overviewPage">
+      <h1 class="center-text">Overview</h1>
+      <!-- Only shown when logged out - same modal/button as the one on Home -->
+      <button class="glass-button login-prompt-button" style="display: none;">Log In</button>
+
+      <div class="weeklyAvg overview-panel">
+        <div class="week-selector">
+          <button id="overviewPrevWeek">&lt;</button>
+          <div class="week-label">
+            <span id="overviewWeekLabel"></span>
+            <span class="range" id="overviewWeekRange"></span>
+          </div>
+          <button id="overviewNextWeek">&gt;</button>
+        </div>
+
+        <div class="stat-row">
+          <div class="stat-tile weight">
+            <span class="value" id="overviewWeightValue"></span>
+            <span class="label">Avg weight</span>
+          </div>
+          <div class="stat-tile steps">
+            <span class="value" id="overviewStepsValue"></span>
+            <span class="label">Avg steps</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="weeklyAvg overview-panel">
+        <div class="chart-title"><span class="swatch weight"></span>Weight trend (last 8 weeks)</div>
+        <div class="chart-wrap" id="overviewWeightChart"></div>
+      </div>
+
+      <div class="weeklyAvg overview-panel">
+        <div class="chart-title"><span class="swatch steps"></span>Steps trend (last 8 weeks)</div>
+        <div class="chart-wrap" id="overviewStepsChart"></div>
+      </div>
+
+      <div class="weeklyAvg overview-panel">
+        <div class="chart-header">
+          <span class="chart-title-text">Measurements trend (last 8 weeks)</span>
+          <select class="measurement-select" id="overviewMeasurementSelect">
+            <option value="all">All measurements</option>
+          </select>
+        </div>
+        <div class="chart-wrap" id="overviewMeasurementsChart"></div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         WEEKLY PAGE
+         One card per week with a Weight/Steps/Measure/Photo toggle - a single
+         "everything for this week" hub. See js/weekly-page.js + js/weekly-tabs.js.
+         ============================================================ -->
+    <div class="page" id="weeklyPage">
+      <h1 class="center-text">Weekly</h1>
+      <!-- Only shown when logged out - same modal/button as the one on Home -->
+      <button class="glass-button login-prompt-button" style="display: none;">Log In</button>
+      <p class="page-subtitle center-text">Weight, steps, and measurements — one card per week</p>
+
+      <div class="weekly-week-list" id="weeklyWeekList"></div>
+
+      <div class="weekly-add-week-row">
+        <button type="button" class="small-btn" id="addPreviousWeeklyButton">Add previous</button>
+        <button type="button" class="small-btn" id="addSpecificWeeklyButton">Add specific week</button>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         CALENDAR PAGE
+         Month grid + per-week row of week-number buttons. Clicking a day or
+         week opens the shared popup (js/modal.js / js/week-modal.js).
+         See js/calender.js.
+         ============================================================ -->
+    <div class="page" id="calendarPage">
+      <h1 class="center-text">Calendar</h1>
+      <!-- Only shown when logged out - same modal/button as the one on Home -->
+      <button class="glass-button login-prompt-button" style="display: none;">Log In</button>
+
+      <div class="calender">
+
+          <div class="header">
+            <button id="prevButton">
+              <
+            </button>
+
+            <div class="monthYear" id="monthYear"> </div>
+
+            <button id="nextButton">
+              >
+            </button>
+
+          </div>
+          <div class="calenderBody">
+            <div class="weekButton" id="weekButton"></div>
+            <div class="dates" id="dates"></div>
+          </div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         PHOTOS PAGE
+         Weekly Front/Back/Side check-in photos, one card per week, plus the
+         All/Front/Back/Side filter pills. See js/photos-page.js.
+         ============================================================ -->
+    <div class="page" id="photosPage">
+      <h1 class="center-text">Photos</h1>
+      <!-- Only shown when logged out - same modal/button as the one on Home -->
+      <button class="glass-button login-prompt-button" style="display: none;">Log In</button>
+      <p class="page-subtitle center-text">Front / back / side check-ins, one row per week</p>
+
+      <div class="photo-filter-bar" id="photoFilterBar">
+        <button class="photo-filter-button active" data-filter="all">All</button>
+        <button class="photo-filter-button" data-filter="front">Front</button>
+        <button class="photo-filter-button" data-filter="back">Back</button>
+        <button class="photo-filter-button" data-filter="side">Side</button>
+      </div>
+
+      <div class="photo-week-list" id="photoWeekList"></div>
+
+      <!-- Two ways to reach an older week: step back one at a time, or jump
+           straight to a specific week number typed into a prompt. -->
+      <div class="photo-add-week-row">
+        <button type="button" class="small-btn" id="addPreviousWeekButton">Add previous</button>
+        <button type="button" class="small-btn" id="addSpecificWeekButton">Add specific week</button>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         BOTTOM NAV
+         Switches between the 5 pages above. See js/pages.js.
+         ============================================================ -->
+    <nav class="page-nav">
+      <button class="page-nav-button" id="navHomeButton" data-page="homePage">Home</button>
+      <button class="page-nav-button" id="navOverviewButton" data-page="overviewPage">Overview</button>
+      <button class="page-nav-button" id="navWeeklyButton" data-page="weeklyPage">Weekly</button>
+      <button class="page-nav-button" id="navCalendarButton" data-page="calendarPage">Calendar</button>
+      <button class="page-nav-button" id="navPhotosButton" data-page="photosPage">Photos</button>
+    </nav>
+
+    <!-- ============================================================
+         SHARED MODAL
+         One popup reused for the day view, the week view, and login/signup -
+         which one is showing is tracked by modalState.mode (js/modal.js).
+         handleModalSave() in js/modal.js dispatches Save to the right place.
+         ============================================================ -->
+    <div class="modal-overlay" id="modalOverlay">
+      <div class="modal" id="modal" role="dialog" aria-modal="true">
+        <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
+        <h3 id="modalTitle"></h3>
+        <div id="modalBody"></div>
+        <button class="glass-button" id="modalSaveButton">Save</button>
+        <button class="glass-button" id="modalDeleteButton">Delete</button>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         SCRIPT
+         Just one script tag - app.js is an ES module, so it `import`s every
+         other file itself (see js/app.js). The browser follows those imports
+         and loads each file automatically, in the right order, exactly once.
+         ============================================================ -->
+    <script type="module" src="js/app.js"></script>
+
+  </body>
+</html>

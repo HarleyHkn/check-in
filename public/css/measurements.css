@@ -1,0 +1,80 @@
+/* Measurements tab (week popup) - field rows and the add-custom/remove-type buttons.
+   Used by measurements-tab.js, both from the week modal and the Weekly page. */
+
+.measurement-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.measurement-row label {
+    flex: 1 1 0;
+    font-size: 0.82rem;
+    font-weight: normal;
+    color: #cecccc;
+}
+
+.measurement-row input {
+    width: 64px;
+    min-width: 0;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 6px;
+    padding: 4px 6px;
+    color: #dde3e4;
+    font-size: 0.85rem;
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+.measurement-row input::-webkit-inner-spin-button,
+.measurement-row input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.measurement-row .unit {
+    font-size: 0.7rem;
+    font-weight: normal;
+    color: #cecccc;
+    width: 16px;
+}
+
+.remove-type-button {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 6px;
+    width: 20px;
+    height: 20px;
+    color: #cecccc;
+    font-size: 0.65rem;
+    cursor: pointer;
+    flex: 0 0 auto;
+}
+
+.remove-type-button:hover {
+    color: #ffd9d0;
+    background: rgba(226, 90, 59, 0.25);
+    border-color: rgba(226, 90, 59, 0.5);
+}
+
+.add-custom-button {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+    background: transparent;
+    border: 1px dashed rgba(255, 255, 255, 0.4);
+    border-radius: 6px;
+    padding: 6px 0;
+    color: #cecccc;
+    font-family: inherit;
+    font-size: 0.75rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.add-custom-button:hover {
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.6);
+}

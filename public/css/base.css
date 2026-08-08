@@ -1,0 +1,255 @@
+/* Base styles: CSS reset, page background, and classes used by 2+ pages.
+   Anything here is shared - if you only see it on one page, it belongs in
+   that page's own CSS file instead. */
+
+*, *::before, *::after {
+    box-sizing: border-box; /* padding/border no longer add on top of width - prevents mobile overflow */
+}
+
+html {
+    -webkit-text-size-adjust: 100%; /* stops iOS auto-enlarging text instead of actually reflowing it */
+    text-size-adjust: 100%;
+}
+
+body {
+    font-family: sans-serif;
+
+    color:#dde3e4;
+
+
+    font-weight: bold;
+    font-size: 20px;
+
+
+    /* Replace 'background.jpg' with your image file name. Path is relative to
+       THIS file's own location (public/css/base.css), not to index.html. */
+    background-image: url('../assets/background.jpg');
+
+    /* Centers and scales the image to cover the screen */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+
+    /* min-height instead of a fixed height, so the page can grow taller than
+       the screen (e.g. a full month of calendar rows) without clipping content */
+    min-height: 100vh;
+    margin: 0;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 16px 100px; /* bottom padding keeps content clear of the fixed bottom nav */
+}
+
+h1 {
+    font-size: clamp(1.5rem, 6vw, 2rem); /* scales with screen width instead of a fixed desktop size */
+}
+
+.center-image {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.center-text {
+    text-align: center;
+}
+
+/* Small dots under a day cell or the Home day-strip: 1 dot = weight logged,
+   2 dots = weight and steps both logged. Same meaning everywhere it appears -
+   used by both the Calendar page and the Home day-strip, hence shared here. */
+.data-dots {
+    display: flex;
+    justify-content: center;
+    gap: 2px;
+    margin-top: 3px;
+}
+
+.data-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: rgba(179, 102, 217, 0.9);
+    display: block;
+}
+
+.center-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+/* Pages: only one shown at a time, switched by the bottom nav (pages.js) */
+.page {
+    display: none;
+    width: 100%;
+}
+
+.page.active {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Card container used by both the Home page and the Overview page */
+.weeklyAvg {
+    width: 100%;
+    max-width: 340px;
+    margin: 0 auto;
+    padding: 10px 20px 20px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+
+/* Bottom nav ("banner roller") - switches between pages */
+.page-nav {
+    position: fixed;
+    left: 50%;
+    bottom: 18px;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 999px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    max-width: calc(100vw - 24px); /* never wider than the phone screen */
+    overflow-x: auto;              /* scrolls sideways instead of overflowing, once more tabs are added */
+    z-index: 900;
+}
+
+.page-nav-button {
+    flex: 0 0 auto;
+    background: transparent;
+    border: none;
+    border-radius: 999px;
+    padding: 10px 20px;
+    color: #cecccc;
+    font-family: inherit;
+    font-weight: bold;
+    font-size: 0.9rem;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.page-nav-button:hover {
+    color: #ffffff;
+}
+
+.page-nav-button.active {
+    background: rgba(255, 255, 255, 0.22);
+    color: #ffffff;
+}
+
+/* Used everywhere: Home, Overview, Auth forms, and inside the day/week modal */
+.glass-button {
+  display: block;
+  width: 200px;
+  max-width: 80%;
+  margin: 20px auto;
+
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 1.1rem;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+}
+
+.glass-button:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Weight/Steps-style toggle - used on the Home page AND inside the week modal */
+.week-modal-toggle {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin: 4px 0 16px;
+}
+
+.week-modal-toggle-button {
+    flex: 1 1 0;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 999px;
+    padding: 6px 0;
+    color: #cecccc;
+    font-family: inherit;
+    font-weight: bold;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.week-modal-toggle-button.active {
+    background: rgba(255, 255, 255, 0.22);
+    color: #ffffff;
+}
+
+.week-modal-toggle-button:not(.active):hover {
+    color: #ffffff;
+}
+
+/* Stat tiles - used on both the Home page and the Overview page */
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 14px;
+}
+
+.stat-tile {
+    flex: 1;
+    min-width: 0;
+    text-align: center;
+    padding: 10px 6px;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.stat-tile .value {
+    display: block;
+    font-size: 1.1rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.stat-tile.weight .value {
+    color: #3987e5;
+}
+
+.stat-tile.steps .value {
+    color: #d95926;
+}
+
+.stat-tile .label {
+    display: block;
+    font-size: 0.65rem;
+    font-weight: normal;
+    color: #8f9aa3;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-top: 2px;
+}
+
+/* Small subtitle line - used under both the Photos and Weekly page headings */
+.page-subtitle {
+    font-size: 0.75rem;
+    font-weight: normal;
+    color: #cecccc;
+    margin: -6px 0 16px;
+}

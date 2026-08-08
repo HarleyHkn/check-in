@@ -1,0 +1,84 @@
+/* Home ("Check In") page: the weight/steps input box and the Mon-Sun day strip. */
+
+.input-box {
+  display: block;
+  width: 300px;
+  max-width: 80%;
+  margin: 20px auto;
+  text-align: center;
+
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 1.1rem;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.9);
+  caret-color: rgba(255, 255, 255, 0.9);
+
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.input-box::-webkit-inner-spin-button,
+.input-box::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Which week the Home page's day strip is showing */
+.home-week-label {
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: #cecccc;
+    margin: 14px 0 8px;
+}
+
+/* Mon-Sun strip (Home page, below Submit) - today highlighted, a dot marks days with data */
+.day-strip {
+    display: flex;
+    justify-content: space-between;
+    gap: 4px;
+    margin: 0 0 18px;
+}
+
+.day-strip button {
+    flex: 1 1 0;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 6px;
+    padding: 6px 0;
+    color: #cecccc;
+    font-family: inherit;
+    font-size: 0.72rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.day-strip button:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.day-strip button.is-today {
+    background: rgba(179, 102, 217, 0.55);
+    border-color: rgba(179, 102, 217, 0.9);
+    color: #ffffff;
+}
+
+.day-strip .day-number {
+    display: block;
+    font-size: 0.85rem;
+    margin-top: 2px;
+}
+
+/* Which day the box above is currently editing - independent of is-today (an
+   outline layers on top instead of fighting the existing background/border),
+   same trick already used for the Photos-week ring on the calendar. */
+.day-strip button.is-selected {
+    outline: 2px solid rgba(57, 135, 229, 0.9);
+    outline-offset: 2px;
+}

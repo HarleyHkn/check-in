@@ -1,0 +1,209 @@
+/* Overview page: week selector, the trend charts, and the SVG chart styles
+   used by trend-chart.js (buildTrendChart / buildMultiTrendChart). */
+
+.overview-panel {
+    margin-bottom: 16px;
+}
+
+.week-selector {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.week-selector button {
+    width: 30px;
+    height: 30px;
+    color: #cecccc;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.week-selector button:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.week-label {
+    text-align: center;
+    font-size: 0.95rem;
+}
+
+.week-label .range {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: normal;
+    color: #cecccc;
+    margin-top: 2px;
+}
+
+.chart-title {
+    font-size: 0.8rem;
+    font-weight: bold;
+    margin: 0 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.chart-title .swatch {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.chart-title .swatch.weight {
+    background: #3987e5;
+}
+
+.chart-title .swatch.steps {
+    background: #d95926;
+}
+
+.chart-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.chart-title-text {
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.measurement-select {
+    /* Solid, not translucent - the OPEN dropdown list is drawn by the browser/OS,
+       not this page, so it mostly ignores rgba transparency and backdrop-filter.
+       This at least keeps it dark/on-theme instead of a plain white popup. */
+    background: #1b2430;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 6px;
+    padding: 4px 6px;
+    color: #dde3e4;
+    font-family: inherit;
+    font-size: 0.7rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.measurement-select option {
+    background: #1b2430; /* Firefox honors this for the open list; Chrome/Edge mostly don't */
+    color: #dde3e4;
+}
+
+.trend-empty {
+    font-size: 0.8rem;
+    font-weight: normal;
+    color: #cecccc;
+    text-align: center;
+    margin: 20px 0;
+}
+
+.trend-legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.trend-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.65rem;
+    font-weight: normal;
+    color: #cecccc;
+}
+
+.trend-legend-swatch {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.chart-wrap {
+    position: relative;
+}
+
+.trend-svg {
+    width: 100%;
+    height: 120px;
+    overflow: visible;
+}
+
+.trend-gridline {
+    stroke: rgba(255, 255, 255, 0.12);
+    stroke-width: 1;
+}
+
+.trend-axislabel {
+    fill: #8f9aa3;
+    font-size: 8px;
+    font-weight: normal;
+    font-family: inherit;
+}
+
+.trend-line {
+    fill: none;
+    stroke-width: 2;
+}
+
+.trend-line.weight {
+    stroke: #3987e5;
+}
+
+.trend-line.steps {
+    stroke: #d95926;
+}
+
+.trend-dot {
+    r: 3;
+}
+
+.trend-dot.weight {
+    fill: #3987e5;
+}
+
+.trend-dot.steps {
+    fill: #d95926;
+}
+
+.trend-dot.last {
+    r: 4.5;
+    stroke: #0d1117;
+    stroke-width: 2;
+}
+
+.trend-hit-area {
+    fill: transparent;
+    cursor: pointer;
+}
+
+.trend-crosshair {
+    stroke: rgba(255, 255, 255, 0.12);
+    stroke-width: 1;
+    stroke-dasharray: 2 2;
+    display: none;
+}
+
+.trend-tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: rgba(15, 20, 28, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 0.7rem;
+    font-weight: normal;
+    color: #dde3e4;
+    white-space: nowrap;
+    display: none;
+    transform: translate(-50%, -130%);
+}
