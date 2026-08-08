@@ -186,8 +186,9 @@ async function finishSaveDayModal(date, weight, steps) {
     const editedMonday = getMondayDate(new Date(date));
     const thisMonday = getMondayDate(new Date());
     if (sameDay(editedMonday, thisMonday)) {
-        document.getElementById("thisWeekAverage").innerText = weekAverage();
+        refreshHomeStats();
         renderWeekStrip();
+        refreshHomeEntryBox(); // in case the edited day is also the one selected on Home
     }
 
     calenderFunc(); // refresh the calendar's day-cell tinting right away, not just on next navigation
@@ -207,8 +208,9 @@ async function deleteDayMetric(metric, date) {   // Deletes just the weight or j
     const editedMonday = getMondayDate(new Date(date));
     const thisMonday = getMondayDate(new Date());
     if (sameDay(editedMonday, thisMonday)) {
-        document.getElementById("thisWeekAverage").innerText = weekAverage();
+        refreshHomeStats();
         renderWeekStrip();
+        refreshHomeEntryBox(); // in case the edited day is also the one selected on Home
     }
 
     calenderFunc();

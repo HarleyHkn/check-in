@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Weekly tab — mockup</title>
+<!-- Reuses the real stylesheet/background so this looks pixel-accurate, not a re-guess -->
+<link rel="stylesheet" href="../style.css" />
+<style>
+  .note {
+    position: fixed;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 380px;
+    width: calc(100% - 28px);
+    text-align: center;
+    font-size: 0.68rem;
+    font-weight: normal;
+    color: #8f9aa3;
+    z-index: 5;
+    line-height: 1.4;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 6px 10px;
+    border-radius: 8px;
+  }
+
+  .page-frame {
+    width: 100%;
+    max-width: 380px;
+    margin: 34px auto 120px;
+  }
+
+  .weekly-week-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: 100%;
+    max-width: 340px;
+    margin: 0 auto;
+  }
+
+  .weekly-week-card .photo-week-card-head {
+    margin-bottom: 10px;
+  }
+
+  .weekly-add-week-row {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    max-width: 340px;
+    margin: 14px auto 0;
+  }
+
+  /* Neon highlight on a toggle button when that category already has data for
+     the week - same purple glow language as the calendar's "fully complete
+     week" border. An outline (not a border) so it doesn't fight the button's
+     own active/inactive background. */
+  .week-modal-toggle-button.has-data {
+    outline: 2px solid rgba(179, 102, 217, 0.9);
+    outline-offset: 2px;
+    box-shadow: 0 0 6px rgba(179, 102, 217, 0.5);
+  }
+
+  /* Shown next to the week number once Weight, Steps, Measure AND Photo all
+     have data for that week - same purple as the has-data glow above. */
+  .week-complete-check {
+    color: rgba(179, 102, 217, 0.9);
+    font-weight: bold;
+    margin-left: 6px;
+    text-shadow: 0 0 6px rgba(179, 102, 217, 0.7);
+  }
+</style>
+</head>
+<body>
+
+<p class="note">Mockup only — nothing here saves anywhere. Each week card is exactly the week popup's Weight/Steps/Measure toggle, just placed directly on the page instead of hidden behind the Calendar's week button.</p>
+
+<div class="page-frame">
+  <h1 class="center-text">Weekly</h1>
+  <p class="page-subtitle center-text">Weight, steps, and measurements — one card per week</p>
+
+  <div class="weekly-week-list" id="weekList"></div>
+
+  <div class="weekly-add-week-row">
+    <button type="button" class="small-btn">Add previous</button>
+    <button type="button" class="small-btn">Add specific week</button>
+  </div>
+</div>
+
+<nav class="page-nav">
+  <button class="page-nav-button">Home</button>
+  <button class="page-nav-button">Overview</button>
+  <button class="page-nav-button active">Weekly</button>
+  <button class="page-nav-button">Calendar</button>
+  <button class="page-nav-button">Photos</button>
+</nav>
+
+<script>
+  const measurementTypeNames = ['Chest', 'Left Arm', 'Right Arm', 'Waist', 'Bottom', 'Left Leg', 'Right Leg'];
+
+  const weeks = [
+    {
+      key: 'w32', label: 'Week 32', range: 'Aug 3 – Aug 9', latest: true,
+      weightAvg: null, stepsAvg: null,
+      measurements: {},
+      photos: { front: false, back: false, side: false }
+    },
+    {
+      key: 'w31', label: 'Week 31', range: 'Jul 27 – Aug 2', latest: false,
+      weightAvg: 76.4, stepsAvg: 8214,
+      measurements: { 'Chest': 98, 'Left Arm': 34, 'Right Arm': 34.5, 'Waist': 86, 'Bottom': 101, 'Left Leg': 58, 'Right Leg': 58 },
+      photos: { front: true, back: true, side: true }
+    },
+    {
+      key: 'w27', label: 'Week 27', range: 'Jun 29 – Jul 5', latest: false,
+      weightAvg: 77.1, stepsAvg: null,
+      measurements: { 'Chest': 99.5 },
+      photos: { front: false, back: false, side: false }
+    }
+  ];
+
+  function buildAvgTab(metricLabel, unitLabel, currentValue, hasExisting) {
+    const tab = document.createElement('div');
+    tab.className = 'week-modal-tab';
+
+    const row = document.createElement('div');
+    row.className = 'week-avg-row';
+
+    const line = document.createElement('span');
+    line.textContent = metricLabel + ': ' + (currentValue !== null ? currentValue + unitLabel : 'No data');
+    row.appendChild(line);
+
+    const editButton = document.createElement('button');
+    editButton.type = 'button';
+    editButton.className = 'edit-avg-button';
+    editButton.title = 'Edit this week\'s average';
+    editButton.textContent = '✎';
+    row.appendChild(editButton);
+
+    tab.appendChild(row);
+
+    // ---- panel, same shape as the real avg-override-panel.js ----
+    const panel = document.createElement('div');
+    panel.className = 'avg-edit-panel';
+    panel.style.display = 'none';
+
+    const warning = document.createElement('p');
+    warning.className = 'avg-warning';
+    warning.textContent = 'This week already has daily entries. Setting a new average will overwrite all of them with this one number.';
+    panel.appendChild(warning);
+
+    const confirmRow = document.createElement('div');
+    confirmRow.className = 'avg-confirm-buttons';
+
+    const cancelButton = document.createElement('button');
+    cancelButton.type = 'button';
+    cancelButton.className = 'small-btn';
+    cancelButton.textContent = 'Cancel';
+    confirmRow.appendChild(cancelButton);
+
+    const confirmButton = document.createElement('button');
+    confirmButton.type = 'button';
+    confirmButton.className = 'small-btn confirm';
+    confirmButton.textContent = 'Yes, overwrite';
+    confirmRow.appendChild(confirmButton);
+    panel.appendChild(confirmRow);
+
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.placeholder = 'New avg' + (unitLabel ? ' (' + unitLabel.trim() + ')' : '');
+    input.style.display = 'none';
+    panel.appendChild(input);
+
+    tab.appendChild(panel);
+
+    editButton.addEventListener('click', function () {
+      panel.style.display = 'block';
+      if (hasExisting) {
+        warning.style.display = 'block';
+        confirmRow.style.display = 'flex';
+        input.style.display = 'none';
+      } else {
+        warning.style.display = 'none';
+        confirmRow.style.display = 'none';
+        input.style.display = 'block';
+      }
+    });
+    cancelButton.addEventListener('click', function () {
+      panel.style.display = 'none';
+    });
+    confirmButton.addEventListener('click', function () {
+      warning.style.display = 'none';
+      confirmRow.style.display = 'none';
+      input.style.display = 'block';
+    });
+
+    return tab;
+  }
+
+  function buildMeasureTab(week) {
+    const tab = document.createElement('div');
+    tab.className = 'week-modal-tab';
+
+    measurementTypeNames.forEach(function (typeName) {
+      const row = document.createElement('div');
+      row.className = 'measurement-row';
+
+      const label = document.createElement('label');
+      label.textContent = typeName;
+      row.appendChild(label);
+
+      const input = document.createElement('input');
+      input.type = 'number';
+      input.placeholder = 'Value';
+      if (week.measurements[typeName] !== undefined) {
+        input.value = week.measurements[typeName];
+      }
+      row.appendChild(input);
+
+      const unit = document.createElement('span');
+      unit.className = 'unit';
+      unit.textContent = 'cm';
+      row.appendChild(unit);
+
+      const removeButton = document.createElement('button');
+      removeButton.type = 'button';
+      removeButton.className = 'remove-type-button';
+      removeButton.title = 'Stop tracking ' + typeName;
+      removeButton.textContent = '✕';
+      row.appendChild(removeButton);
+
+      tab.appendChild(row);
+    });
+
+    const addCustomButton = document.createElement('button');
+    addCustomButton.type = 'button';
+    addCustomButton.className = 'add-custom-button';
+    addCustomButton.textContent = '+ Add custom measurement';
+    tab.appendChild(addCustomButton);
+
+    return tab;
+  }
+
+  function buildPhotoAngleBox(angleLabel, hasPhoto) {
+    const box = document.createElement('div');
+    box.className = 'photo-angle-box';
+
+    const label = document.createElement('div');
+    label.className = 'photo-angle-label';
+    label.textContent = angleLabel;
+    box.appendChild(label);
+
+    const slot = document.createElement('div');
+    if (hasPhoto) {
+      slot.className = 'photo-slot filled ' + angleLabel.toLowerCase();
+      slot.innerHTML = '<div class="placeholder-figure" style="position:absolute;inset:0;background:linear-gradient(160deg,#2a3b52,#17202b);"></div>';
+    } else {
+      slot.className = 'photo-slot empty';
+      slot.innerHTML = '<span class="photo-plus">+</span>';
+    }
+    box.appendChild(slot);
+    return box;
+  }
+
+  function buildPhotoTab(week) {
+    const tab = document.createElement('div');
+    tab.className = 'week-modal-tab';
+
+    const row = document.createElement('div');
+    row.className = 'photo-angle-row';
+    row.style.setProperty('--cols', 3);
+    row.appendChild(buildPhotoAngleBox('Front', !!week.photos && week.photos.front));
+    row.appendChild(buildPhotoAngleBox('Back', !!week.photos && week.photos.back));
+    row.appendChild(buildPhotoAngleBox('Side', !!week.photos && week.photos.side));
+    tab.appendChild(row);
+
+    return tab;
+  }
+
+  function buildWeekCard(week) {
+    const card = document.createElement('div');
+    card.className = 'weeklyAvg overview-panel weekly-week-card';
+
+    // Computed once up front - used both for the header checkmark and to
+    // neon-highlight the matching toggle button further down.
+    const hasWeightData = week.weightAvg !== null;
+    const hasStepsData = week.stepsAvg !== null;
+    const hasMeasurementData = Object.keys(week.measurements).length > 0;
+    const hasPhotoData = week.photos.front || week.photos.back || week.photos.side;
+    const isFullyLogged = hasWeightData && hasStepsData && hasMeasurementData && hasPhotoData;
+
+    const head = document.createElement('div');
+    head.className = 'photo-week-card-head';
+    head.innerHTML =
+      '<span class="photo-week-name">' + week.label +
+      (isFullyLogged ? '<span class="week-complete-check">✓</span>' : '') +
+      (week.latest ? '<span class="photo-latest-tag">LATEST</span>' : '') + '</span>' +
+      '<span class="photo-week-range">' + week.range + '</span>';
+    card.appendChild(head);
+
+    const weightTab = buildAvgTab('Weight', ' kg', week.weightAvg, week.weightAvg !== null);
+    const stepsTab = buildAvgTab('Steps', '', week.stepsAvg, week.stepsAvg !== null);
+    const measureTab = buildMeasureTab(week);
+    const photoTab = buildPhotoTab(week);
+    stepsTab.style.display = 'none';
+    measureTab.style.display = 'none';
+    photoTab.style.display = 'none';
+
+    const toggleBar = document.createElement('div');
+    toggleBar.className = 'week-modal-toggle';
+
+    const weightButton = document.createElement('button');
+    weightButton.type = 'button';
+    weightButton.className = 'week-modal-toggle-button active';
+    weightButton.textContent = 'Weight';
+    toggleBar.appendChild(weightButton);
+
+    const stepsButton = document.createElement('button');
+    stepsButton.type = 'button';
+    stepsButton.className = 'week-modal-toggle-button';
+    stepsButton.textContent = 'Steps';
+    toggleBar.appendChild(stepsButton);
+
+    const measureButton = document.createElement('button');
+    measureButton.type = 'button';
+    measureButton.className = 'week-modal-toggle-button';
+    measureButton.textContent = 'Measure';
+    toggleBar.appendChild(measureButton);
+
+    const photoButton = document.createElement('button');
+    photoButton.type = 'button';
+    photoButton.className = 'week-modal-toggle-button';
+    photoButton.textContent = 'Photo';
+    toggleBar.appendChild(photoButton);
+
+    // Neon-highlight whichever tabs already have data for this week
+    if (hasWeightData) { weightButton.classList.add('has-data'); }
+    if (hasStepsData) { stepsButton.classList.add('has-data'); }
+    if (hasMeasurementData) { measureButton.classList.add('has-data'); }
+    if (hasPhotoData) { photoButton.classList.add('has-data'); }
+
+    function selectTab(activeButton, activeTab) {
+      [weightButton, stepsButton, measureButton, photoButton].forEach(function (b) { b.classList.remove('active'); });
+      [weightTab, stepsTab, measureTab, photoTab].forEach(function (t) { t.style.display = 'none'; });
+      activeButton.classList.add('active');
+      activeTab.style.display = 'block';
+    }
+
+    weightButton.addEventListener('click', function () { selectTab(weightButton, weightTab); });
+    stepsButton.addEventListener('click', function () { selectTab(stepsButton, stepsTab); });
+    measureButton.addEventListener('click', function () { selectTab(measureButton, measureTab); });
+    photoButton.addEventListener('click', function () { selectTab(photoButton, photoTab); });
+
+    card.appendChild(toggleBar);
+    card.appendChild(weightTab);
+    card.appendChild(stepsTab);
+    card.appendChild(measureTab);
+    card.appendChild(photoTab);
+
+    return card;
+  }
+
+  const weekList = document.getElementById('weekList');
+  weeks.forEach(function (week) {
+    weekList.appendChild(buildWeekCard(week));
+  });
+</script>
+</body>
+</html>

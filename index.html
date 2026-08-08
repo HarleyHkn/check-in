@@ -19,9 +19,9 @@
       <!-- Date/login header - only shown on the Home page, not the other tabs -->
       <div class="title-page" id="title-page">
 
-        <h1 class="center-text">Weight Log</h1>
-        <!-- Puts todays date and date below, p does text date div gives empty box, js calls datebox and provides back date.-->
-        <p class="center-text">Date: <div class="center-text"  id="dateBox"></div></p>
+        <h1 class="center-text">Check In</h1>
+        <!-- Puts today's date below, e.g. "August 8" - js calls displayDate() and fills this in -->
+        <p class="center-text"><div class="center-text" id="dateBox"></div></p>
 
         <!-- Login status: buttons to log in / out - the buttons themselves show login state, no separate status text needed. -->
         <div class="center-container" id="authStatus">
@@ -31,20 +31,48 @@
       </div>
 
       <div class="weeklyAvg" id="WeeklyAvg">
-        <h3 class="center-text">Today's Weight</h3>
-        <!-- This is an input field for the user to enter their weight -->
-        <input class="input-box" id="weight" type="number"  placeholder="Enter Weight"/>
 
-        <!-- enter button to sumbit the weight-->
-        <button class="glass-button" id="submit-button">Submit</button>
+        <!-- Weight/Steps toggle - same classes as the day popup's toggle -->
+        <div class="week-modal-toggle" id="homeMetricToggle">
+          <button type="button" class="week-modal-toggle-button active" data-metric="weight">Weight</button>
+          <button type="button" class="week-modal-toggle-button" data-metric="steps">Steps</button>
+        </div>
 
-        <!-- Mon-Sun strip: today highlighted, a dot marks days with an entry, click a day to open its popup -->
+        <div class="week-modal-tab" id="homeWeightTab">
+          <h3 class="center-text" id="homeWeightHeading">Today's Weight</h3>
+          <div class="day-input-row">
+            <input class="input-box" id="weight" type="number" placeholder="Enter Weight" style="margin: 0;"/>
+            <button class="small-delete-button" id="deleteWeightButton" title="Delete this weight entry" style="display: none;">✕</button>
+          </div>
+          <button class="glass-button" id="submit-button">Submit</button>
+        </div>
+
+        <div class="week-modal-tab" id="homeStepsTab" style="display: none;">
+          <h3 class="center-text" id="homeStepsHeading">Today's Steps</h3>
+          <div class="day-input-row">
+            <input class="input-box" id="homeStepsInput" type="number" placeholder="Enter Steps" style="margin: 0;"/>
+            <button class="small-delete-button" id="deleteStepsButton" title="Delete this steps entry" style="display: none;">✕</button>
+          </div>
+          <button class="glass-button" id="submitStepsButton">Submit</button>
+        </div>
+
+        <!-- Which week this strip is showing -->
+        <div class="home-week-label" id="homeWeekLabel"></div>
+
+        <!-- Mon-Sun strip: today highlighted, a dot marks days with an entry, click a
+             day to select it - the box above then edits THAT day instead of today -->
         <div class="day-strip" id="weekStrip"></div>
 
-        <!-- JS gonna give us average this week of the inputs-->
-        <div class="center-container">
-          <p class="center-text">Average this week:</p>
-          <div id="thisWeekAverage"></div>
+        <!-- Both this week's averages, same stat-row/stat-tile pattern as Overview -->
+        <div class="stat-row">
+          <div class="stat-tile weight">
+            <span class="value" id="homeWeightAverage"></span>
+            <span class="label">Avg weight</span>
+          </div>
+          <div class="stat-tile steps">
+            <span class="value" id="homeStepsAverage"></span>
+            <span class="label">Avg steps</span>
+          </div>
         </div>
       </div>
     </div>
@@ -98,6 +126,21 @@
       </div>
     </div>
 
+    <!-- Weekly page: one card per week, Weight/Steps/Measure/Photo toggle each -->
+    <div class="page" id="weeklyPage">
+      <h1 class="center-text">Weekly</h1>
+      <!-- Only shown when logged out - same modal/button as the one on Home -->
+      <button class="glass-button login-prompt-button" style="display: none;">Log In</button>
+      <p class="page-subtitle center-text">Weight, steps, and measurements — one card per week</p>
+
+      <div class="weekly-week-list" id="weeklyWeekList"></div>
+
+      <div class="weekly-add-week-row">
+        <button type="button" class="small-btn" id="addPreviousWeeklyButton">Add previous</button>
+        <button type="button" class="small-btn" id="addSpecificWeeklyButton">Add specific week</button>
+      </div>
+    </div>
+
     <!-- Calendar page -->
     <div class="page" id="calendarPage">
       <h1 class="center-text">Calendar</h1>
@@ -140,12 +183,20 @@
       </div>
 
       <div class="photo-week-list" id="photoWeekList"></div>
+
+      <!-- Two ways to reach an older week: step back one at a time, or jump
+           straight to a specific week number typed into a prompt. -->
+      <div class="photo-add-week-row">
+        <button type="button" class="small-btn" id="addPreviousWeekButton">Add previous</button>
+        <button type="button" class="small-btn" id="addSpecificWeekButton">Add specific week</button>
+      </div>
     </div>
 
     <!-- Bottom nav: switches between the pages above -->
     <nav class="page-nav">
       <button class="page-nav-button" id="navHomeButton" data-page="homePage">Home</button>
       <button class="page-nav-button" id="navOverviewButton" data-page="overviewPage">Overview</button>
+      <button class="page-nav-button" id="navWeeklyButton" data-page="weeklyPage">Weekly</button>
       <button class="page-nav-button" id="navCalendarButton" data-page="calendarPage">Calendar</button>
       <button class="page-nav-button" id="navPhotosButton" data-page="photosPage">Photos</button>
     </nav>
@@ -162,7 +213,8 @@
 
 
 
-   <script src="app.js"></script>
+   <script src="date-utils.js"></script>
+   <script src="weights-ui.js"></script>
    <script src="modal.js"></script>
    <script src="avg-override-panel.js"></script>
    <script src="tab-toggle.js"></script>
@@ -175,8 +227,12 @@
    <script src="trend-chart.js"></script>
    <script src="overview.js"></script>
    <script src="photos-page.js"></script>
+   <script src="weekly-tabs.js"></script>
+   <script src="weekly-page.js"></script>
+   <script src="home-page.js"></script>
    <script src="pages.js"></script>
    <script src="calender.js"></script>
+   <script src="app.js"></script>
   
   </body>
 </html>

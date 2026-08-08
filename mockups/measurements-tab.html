@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Measurements tab — mockup</title>
+<!-- Reuses the real stylesheet/background so this looks pixel-accurate, not a re-guess -->
+<link rel="stylesheet" href="../style.css" />
+<style>
+  .note {
+    position: fixed;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 380px;
+    width: calc(100% - 28px);
+    text-align: center;
+    font-size: 0.68rem;
+    font-weight: normal;
+    color: #8f9aa3;
+    z-index: 5;
+    line-height: 1.4;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 6px 10px;
+    border-radius: 8px;
+  }
+
+  .page-frame {
+    width: 100%;
+    max-width: 380px;
+    margin: 34px auto 120px;
+  }
+
+  /* Week list - same shape/spacing as the real Photos week list */
+  .measurements-week-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: 100%;
+    max-width: 340px;
+    margin: 0 auto;
+  }
+
+  .measurements-week-card .measurement-row:last-of-type {
+    margin-bottom: 0;
+  }
+
+  .measurements-week-card .photo-week-card-head {
+    margin-bottom: 12px;
+  }
+
+  /* Same shape as the Photos "Add previous / Add specific week" row */
+  .measurements-add-week-row {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    max-width: 340px;
+    margin: 14px auto 0;
+  }
+</style>
+</head>
+<body>
+
+<p class="note">Mockup only — nothing here saves anywhere. Reuses the real style.css and the exact same field rows/buttons already used in the week popup's Measurements tab.</p>
+
+<div class="page-frame">
+  <h1 class="center-text">Measurements</h1>
+  <p class="page-subtitle center-text">Chest, arms, waist and more — one row per week</p>
+
+  <!-- Adding a custom type is global (not per-week), same as it already works today -->
+  <button class="add-custom-button" style="max-width: 340px; margin: 0 auto 16px; display: block;">+ Add custom measurement</button>
+
+  <div class="measurements-week-list" id="weekList"></div>
+
+  <div class="measurements-add-week-row">
+    <button type="button" class="small-btn">Add previous</button>
+    <button type="button" class="small-btn">Add specific week</button>
+  </div>
+</div>
+
+<nav class="page-nav">
+  <button class="page-nav-button">Home</button>
+  <button class="page-nav-button">Overview</button>
+  <button class="page-nav-button">Calendar</button>
+  <button class="page-nav-button active">Measurements</button>
+  <button class="page-nav-button">Photos</button>
+</nav>
+
+<script>
+  const types = ['Chest', 'Left Arm', 'Right Arm', 'Waist', 'Bottom', 'Left Leg', 'Right Leg'];
+
+  const weeks = [
+    {
+      label: 'Week 32', range: 'Aug 3 – Aug 9', latest: true,
+      values: { 'Chest': null, 'Left Arm': null, 'Right Arm': null, 'Waist': null, 'Bottom': null, 'Left Leg': null, 'Right Leg': null }
+    },
+    {
+      label: 'Week 31', range: 'Jul 27 – Aug 2', latest: false,
+      values: { 'Chest': 98, 'Left Arm': 34, 'Right Arm': 34.5, 'Waist': 86, 'Bottom': 101, 'Left Leg': 58, 'Right Leg': 58 }
+    },
+    {
+      label: 'Week 27', range: 'Jun 29 – Jul 5', latest: false,
+      values: { 'Chest': 99.5, 'Left Arm': 33.5, 'Right Arm': 34, 'Waist': 88, 'Bottom': 102, 'Left Leg': null, 'Right Leg': null }
+    }
+  ];
+
+  const weekList = document.getElementById('weekList');
+
+  weeks.forEach(function (week) {
+    const card = document.createElement('div');
+    card.className = 'weeklyAvg overview-panel measurements-week-card';
+
+    const head = document.createElement('div');
+    head.className = 'photo-week-card-head';
+    head.innerHTML =
+      '<span class="photo-week-name">' + week.label + (week.latest ? '<span class="photo-latest-tag">LATEST</span>' : '') + '</span>' +
+      '<span class="photo-week-range">' + week.range + '</span>';
+    card.appendChild(head);
+
+    types.forEach(function (typeName) {
+      const row = document.createElement('div');
+      row.className = 'measurement-row';
+
+      const label = document.createElement('label');
+      label.textContent = typeName;
+      row.appendChild(label);
+
+      const input = document.createElement('input');
+      input.type = 'number';
+      input.placeholder = 'Value';
+      if (week.values[typeName] !== null) {
+        input.value = week.values[typeName];
+      }
+      row.appendChild(input);
+
+      const unit = document.createElement('span');
+      unit.className = 'unit';
+      unit.textContent = 'cm';
+      row.appendChild(unit);
+
+      const removeButton = document.createElement('button');
+      removeButton.type = 'button';
+      removeButton.className = 'remove-type-button';
+      removeButton.title = 'Stop tracking ' + typeName;
+      removeButton.textContent = '✕';
+      row.appendChild(removeButton);
+
+      card.appendChild(row);
+    });
+
+    weekList.appendChild(card);
+  });
+</script>
+</body>
+</html>

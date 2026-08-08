@@ -7,20 +7,66 @@
 
 let activePhotoFilter = 'all'; // 'all', 'front', 'back', or 'side'
 
+// How many weeks before the current one are always guaranteed a (possibly empty)
+// card, regardless of whether they have a photo yet. Starts at 1 (current + last
+// week), and grows by itself as the oldest guaranteed week gets filled in - see
+// the upload handler in buildAngleBox() below.
+let photoWeeksBackShown = 1;
+
+// Specific weeks added by typing a week number into the "Add week" box - kept
+// separate from photoWeeksBackShown since these can be any single week, not
+// necessarily next to each other. Keyed by that week's Monday "YYYY-MM-DD".
+let manuallyAddedWeekKeys = {};
+
 function parseDateKey(dateKey) { // "YYYY-MM-DD" -> local Date. Splitting it ourselves
     const parts = dateKey.split('-');                    // avoids the UTC-midnight shift that new Date("YYYY-MM-DD") causes.
     return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
 }
 
-// Which week Mondays to show: the current week (so there's always somewhere to
-// upload a new photo) plus every week that already has at least one photo.
+// How many whole weeks before the current one this Monday falls on (0 = this week,
+// 1 = last week, 2 = the week before that, ...).
+function weeksBackFromCurrent(weekMondayKey) {
+    const currentMonday = getMondayDate();
+    const weekMonday = parseDateKey(weekMondayKey);
+    const diffDays = Math.round((currentMonday - weekMonday) / 86400000);
+    return diffDays / 7;
+}
+
+// Finds the Monday for a given week number in the given year, by walking forward
+// from Jan 1st one week at a time until getWeekNumber() agrees - simplest way to
+// reverse that function without duplicating its date math. Returns null if the
+// week number doesn't exist (e.g. typed 99).
+function findMondayForWeekNumber(weekNumber, year) {
+    let monday = getMondayDate(new Date(year, 0, 1));
+    for (let i = 0; i < 53; i++) {
+        if (getWeekNumber(monday) === weekNumber) {
+            return monday;
+        }
+        const nextMonday = new Date(monday);
+        nextMonday.setDate(monday.getDate() + 7);
+        monday = nextMonday;
+    }
+    return null;
+}
+
+// Which week Mondays to show: the current week plus photoWeeksBackShown weeks
+// before it (so there's always somewhere to upload a new or catch-up photo),
+// plus every week that already has at least one photo (which can reach further
+// back than photoWeeksBackShown if the user jumped ahead with the button).
 function getPhotoWeekKeys() {
-    const currentMondayKey = formatDateKey(getMondayDate());
+    const currentMonday = getMondayDate();
 
     const seen = {}; // plain object used as a set of date-key strings
-    seen[currentMondayKey] = true;
+    for (let weeksBack = 0; weeksBack <= photoWeeksBackShown; weeksBack++) {
+        const mondayForWeek = new Date(currentMonday);
+        mondayForWeek.setDate(currentMonday.getDate() - weeksBack * 7);
+        seen[formatDateKey(mondayForWeek)] = true;
+    }
     for (let i = 0; i < photoList.length; i++) {
         seen[photoList[i].date] = true;
+    }
+    for (const weekKey in manuallyAddedWeekKeys) {
+        seen[weekKey] = true;
     }
 
     const weekKeys = Object.keys(seen);
@@ -82,6 +128,14 @@ function buildAngleBox(weekMondayKey, angleKey, angleLabel) {
         fileInput.addEventListener('change', async function () {
             if (fileInput.files && fileInput.files[0]) {
                 await uploadPhoto(weekMondayKey, angleKey, fileInput.files[0]);
+
+                // If this was the oldest guaranteed-empty week, reveal one more
+                // week below it automatically - keeps the catch-up chain going
+                // without needing another button click.
+                if (weeksBackFromCurrent(weekMondayKey) === photoWeeksBackShown) {
+                    photoWeeksBackShown++;
+                }
+
                 renderPhotosPage();
             }
         });
@@ -165,4 +219,33 @@ photoFilterBar.addEventListener('click', function (event) {
 
     activePhotoFilter = button.dataset.filter;
     applyPhotoFilter();
+});
+
+document.getElementById('addPreviousWeekButton').addEventListener('click', function () {
+    photoWeeksBackShown++;   // reveal one more empty week further back
+    renderPhotosPage();
+});
+
+document.getElementById('addSpecificWeekButton').addEventListener('click', function () {
+    const typedValue = prompt('Which week number of this year? (e.g. 25)');
+    if (!typedValue) {
+        return; // cancelled
+    }
+
+    const weekNumber = Number(typedValue);
+    if (isNaN(weekNumber)) {
+        alert('Please enter a number.');
+        return;
+    }
+
+    const currentYear = new Date().getFullYear();
+    const mondayForWeek = findMondayForWeekNumber(weekNumber, currentYear);
+
+    if (mondayForWeek === null) {
+        alert('That is not a valid week number.');
+        return;
+    }
+
+    manuallyAddedWeekKeys[formatDateKey(mondayForWeek)] = true;
+    renderPhotosPage();
 });

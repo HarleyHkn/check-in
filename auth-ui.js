@@ -137,8 +137,10 @@ async function afterLogin(username) {
     await loadMeasurementValues();
     await loadPhotoList();
 
-    document.getElementById("thisWeekAverage").innerText = weekAverage();
+    selectedHomeDay = new Date(); // back to today for whoever just logged in
+    refreshHomeStats();
     renderWeekStrip();
+    refreshHomeEntryBox();
     calenderFunc(); // otherwise the calendar keeps showing stale tinting from before login
 
     if (pendingSaveAction !== null) {
@@ -157,9 +159,13 @@ async function logout() {
     measurementTypes = [];
     measurementValues = [];
     photoList = [];
+    photoWeeksBackShown = 1; // back to just current + last week for whoever logs in next
+    manuallyAddedWeekKeys = {};
 
-    document.getElementById("thisWeekAverage").innerText = weekAverage();
+    selectedHomeDay = new Date();
+    refreshHomeStats();
     renderWeekStrip();
+    refreshHomeEntryBox();
     calenderFunc(); // otherwise the calendar keeps showing the logged-out user's tinting
 }
 

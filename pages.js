@@ -19,6 +19,9 @@ function showPage(pageId) {
     if (pageId === 'photosPage') {
         renderPhotosPage();                  // refresh with the latest data every time this page is opened
     }
+    if (pageId === 'weeklyPage') {
+        renderWeeklyPage();                  // refresh with the latest data every time this page is opened
+    }
 }
 
 const navButtons = document.querySelectorAll('.page-nav-button');

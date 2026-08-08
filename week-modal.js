@@ -251,8 +251,9 @@ async function finishSaveWeekModal(saveInfo) {
     const editedMonday = getMondayDate(new Date(saveInfo.mondayDate));
     const thisMonday = getMondayDate(new Date());
     if (sameDay(editedMonday, thisMonday)) {
-        document.getElementById("thisWeekAverage").innerText = weekAverage();
+        refreshHomeStats();
         renderWeekStrip();
+        refreshHomeEntryBox();
     }
 
     calenderFunc(); // refresh the calendar's day-cell/week-button tinting right away

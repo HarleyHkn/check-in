@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Home "Check In" — mockup</title>
+<!-- Reuses the real stylesheet/background so this looks pixel-accurate, not a re-guess -->
+<link rel="stylesheet" href="../style.css" />
+<style>
+  .note {
+    position: fixed;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 380px;
+    width: calc(100% - 28px);
+    text-align: center;
+    font-size: 0.68rem;
+    font-weight: normal;
+    color: #8f9aa3;
+    z-index: 5;
+    line-height: 1.4;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 6px 10px;
+    border-radius: 8px;
+  }
+
+  /* --- New pieces this mockup previews, not yet in the real style.css --- */
+
+  .home-week-label {
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: #cecccc;
+    margin: 4px 0 8px;
+  }
+
+  /* Stacks a date number under the existing weekday label inside each strip button */
+  .day-strip .day-number {
+    display: block;
+    font-size: 0.85rem;
+    margin-top: 2px;
+  }
+
+  /* Which day the top box is currently showing/editing - independent of is-today
+     (an outline layers on top instead of fighting the existing purple border/bg,
+     same trick already used for the Photos-week teal ring on the calendar). */
+  .day-strip button.is-selected {
+    outline: 2px solid rgba(57, 135, 229, 0.9);
+    outline-offset: 2px;
+  }
+</style>
+</head>
+<body>
+
+<p class="note">Mockup only — nothing here saves anywhere. Click "Weight" / "Steps" to see both states. Reuses the real style.css, so this is exactly how it'll actually render.</p>
+
+<div class="title-page" id="title-page">
+  <h1 class="center-text">Check In</h1>
+  <p class="center-text"><div class="center-text" id="dateBox">August 8</div></p>
+
+  <div class="center-container" id="authStatus">
+    <button class="glass-button" id="loginButton">Log In</button>
+  </div>
+</div>
+
+<div class="page active" id="homePage">
+  <div class="weeklyAvg" id="WeeklyAvg">
+
+    <!-- Weight/Steps toggle - same classes as the day popup's toggle -->
+    <div class="week-modal-toggle" id="homeMetricToggle">
+      <button class="week-modal-toggle-button active" data-metric="weight">Weight</button>
+      <button class="week-modal-toggle-button" data-metric="steps">Steps</button>
+    </div>
+
+    <div class="week-modal-tab" id="homeWeightTab">
+      <h3 class="center-text" id="homeWeightHeading">Today's Weight</h3>
+      <input class="input-box" type="number" placeholder="Enter Weight" id="homeWeightInput" />
+      <button class="glass-button">Submit</button>
+    </div>
+
+    <div class="week-modal-tab" id="homeStepsTab" style="display: none;">
+      <h3 class="center-text" id="homeStepsHeading">Today's Steps</h3>
+      <input class="input-box" type="number" placeholder="Enter Steps" id="homeStepsInput" />
+      <button class="glass-button">Submit</button>
+    </div>
+
+    <div class="home-week-label">Week 32</div>
+
+    <!-- Mon-Sun strip - now shows a date (and the existing data-dots, same as the
+         Calendar page) under each weekday, and is clickable to select which day
+         the box above edits (not just "today" anymore) -->
+    <div class="day-strip" id="weekStrip"></div>
+
+    <!-- Both averages shown together - same stat-row/stat-tile pattern as Overview -->
+    <div class="stat-row">
+      <div class="stat-tile weight">
+        <span class="value">76.4 kg</span>
+        <span class="label">Avg weight</span>
+      </div>
+      <div class="stat-tile steps">
+        <span class="value">8,214</span>
+        <span class="label">Avg steps</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<nav class="page-nav">
+  <button class="page-nav-button active">Home</button>
+  <button class="page-nav-button">Overview</button>
+  <button class="page-nav-button">Calendar</button>
+  <button class="page-nav-button">Photos</button>
+</nav>
+
+<script>
+  const toggle = document.getElementById('homeMetricToggle');
+  const weightTab = document.getElementById('homeWeightTab');
+  const stepsTab = document.getElementById('homeStepsTab');
+  const weightHeading = document.getElementById('homeWeightHeading');
+  const stepsHeading = document.getElementById('homeStepsHeading');
+  const weightInput = document.getElementById('homeWeightInput');
+  const stepsInput = document.getElementById('homeStepsInput');
+  const strip = document.getElementById('weekStrip');
+
+  // Sample data standing in for what would really come from weightLog/stepsLog -
+  // day 5 (Sat) is "today" and has nothing entered yet, matching a real fresh day.
+  const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const sampleData = {
+    0: { weight: 75, steps: 9400 },
+    1: { weight: null, steps: 8100 },
+    2: { weight: 76, steps: null },
+    3: { weight: null, steps: null },
+    4: { weight: 75.5, steps: 7600 },
+    5: { weight: null, steps: null }, // today
+    6: { weight: null, steps: null }
+  };
+  let selectedDay = 5; // today
+
+  const dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const dayNumbers = [3, 4, 5, 6, 7, 8, 9];
+
+  function buildDataDots(dayIndex) { // mirrors the real buildDataDots() in calender.js
+    const dayData = sampleData[dayIndex];
+    if (dayData.weight === null && dayData.steps === null) {
+      return null;
+    }
+    const dotsWrap = document.createElement('span');
+    dotsWrap.className = 'data-dots';
+    if (dayData.weight !== null) {
+      const dot = document.createElement('span');
+      dot.className = 'data-dot';
+      dotsWrap.appendChild(dot);
+    }
+    if (dayData.steps !== null) {
+      const dot = document.createElement('span');
+      dot.className = 'data-dot';
+      dotsWrap.appendChild(dot);
+    }
+    return dotsWrap;
+  }
+
+  for (let i = 0; i < dayLabels.length; i++) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.dataset.day = i;
+    if (i === 5) {
+      button.classList.add('is-today', 'is-selected'); // today, and selected by default
+    }
+
+    button.append(dayLabels[i]);
+
+    const numberSpan = document.createElement('span');
+    numberSpan.className = 'day-number';
+    numberSpan.textContent = dayNumbers[i];
+    button.appendChild(numberSpan);
+
+    const dots = buildDataDots(i);
+    if (dots !== null) {
+      button.appendChild(dots);
+    }
+
+    strip.appendChild(button);
+  }
+
+  function refreshBoxForSelectedDay() {
+    const isToday = selectedDay === 5;
+    const dayData = sampleData[selectedDay];
+
+    weightHeading.textContent = (isToday ? "Today's" : dayNames[selectedDay] + "'s") + ' Weight';
+    stepsHeading.textContent = (isToday ? "Today's" : dayNames[selectedDay] + "'s") + ' Steps';
+
+    weightInput.value = dayData.weight !== null ? dayData.weight : '';
+    stepsInput.value = dayData.steps !== null ? dayData.steps : '';
+  }
+
+  toggle.addEventListener('click', function (event) {
+    const button = event.target.closest('.week-modal-toggle-button');
+    if (!button) return;
+
+    toggle.querySelectorAll('.week-modal-toggle-button').forEach(function (b) {
+      b.classList.remove('active');
+    });
+    button.classList.add('active');
+
+    const metric = button.dataset.metric;
+    weightTab.style.display = metric === 'weight' ? 'block' : 'none';
+    stepsTab.style.display = metric === 'steps' ? 'block' : 'none';
+  });
+
+  strip.addEventListener('click', function (event) {
+    const button = event.target.closest('button');
+    if (!button) return;
+
+    strip.querySelectorAll('button').forEach(function (b) {
+      b.classList.remove('is-selected');
+    });
+    button.classList.add('is-selected');
+
+    selectedDay = Number(button.dataset.day);
+    refreshBoxForSelectedDay();
+  });
+
+  refreshBoxForSelectedDay();
+</script>
+</body>
+</html>

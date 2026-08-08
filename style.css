@@ -355,18 +355,21 @@ h1 {
 
 
 
-#thisWeekAverage {
-    width: fit-content; /* Shrinks the div to only take up as much space as the text needs */
-    margin: 0 auto;     /* Centers it horizontally */
+/* Which week the Home page's day strip is showing */
+.home-week-label {
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: #cecccc;
+    margin: 14px 0 8px;
 }
-
 
 /* Mon-Sun strip (Home page, below Submit) - today highlighted, a dot marks days with data */
 .day-strip {
     display: flex;
     justify-content: space-between;
     gap: 4px;
-    margin: 18px 0;
+    margin: 0 0 18px;
 }
 
 .day-strip button {
@@ -390,6 +393,20 @@ h1 {
     background: rgba(179, 102, 217, 0.55);
     border-color: rgba(179, 102, 217, 0.9);
     color: #ffffff;
+}
+
+.day-strip .day-number {
+    display: block;
+    font-size: 0.85rem;
+    margin-top: 2px;
+}
+
+/* Which day the box above is currently editing - independent of is-today (an
+   outline layers on top instead of fighting the existing background/border),
+   same trick already used for the Photos-week ring on the calendar. */
+.day-strip button.is-selected {
+    outline: 2px solid rgba(57, 135, 229, 0.9);
+    outline-offset: 2px;
 }
 
 
@@ -1184,3 +1201,54 @@ h1 {
 .photo-slot input[type="file"] {
     display: none;
 }
+
+/* Weekly page */
+.weekly-week-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: 100%;
+    max-width: 340px;
+    margin: 0 auto;
+}
+
+.weekly-week-card .photo-week-card-head {
+    margin-bottom: 10px;
+}
+
+.weekly-add-week-row {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    max-width: 340px;
+    margin: 14px auto 0;
+}
+
+/* Neon highlight on a toggle button when that category already has data for
+   the week - same purple glow language as the calendar's "fully complete
+   week" border. An outline (not a border) so it doesn't fight the button's
+   own active/inactive background. */
+.week-modal-toggle-button.has-data {
+    outline: 2px solid rgba(179, 102, 217, 0.9);
+    outline-offset: 2px;
+    box-shadow: 0 0 6px rgba(179, 102, 217, 0.5);
+}
+
+/* Shown next to the week number once Weight, Steps, Measure AND Photo all
+   have data for that week - same purple as the has-data glow above. */
+.week-complete-check {
+    color: rgba(179, 102, 217, 0.9);
+    font-weight: bold;
+    margin-left: 6px;
+    text-shadow: 0 0 6px rgba(179, 102, 217, 0.7);
+}
+
+/* "Add week" row - lines up with the 340px-wide week cards above it */
+.photo-add-week-row {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    max-width: 340px;
+    margin: 12px auto 0;
+}
+
