@@ -208,6 +208,10 @@ export function showLoggedIn(username) {
     document.getElementById('loginButton').style.display = 'none';
     document.getElementById('logoutButton').style.display = 'inline-block';
 
+    const loggedInAsText = document.getElementById('loggedInAsText');
+    loggedInAsText.textContent = 'Logged in as ' + username;
+    loggedInAsText.style.display = 'block';
+
     // Hide the extra "Log In" button shown at the top of Overview/Calendar/Photos
     const loginPromptButtons = document.querySelectorAll('.login-prompt-button');
     for (let i = 0; i < loginPromptButtons.length; i++) {
@@ -220,6 +224,8 @@ export function showLoggedOut() {
     authState.isLoggedIn = false;
     document.getElementById('loginButton').style.display = 'inline-block';
     document.getElementById('logoutButton').style.display = 'none';
+
+    document.getElementById('loggedInAsText').style.display = 'none';
 
     const loginPromptButtons = document.querySelectorAll('.login-prompt-button');
     for (let i = 0; i < loginPromptButtons.length; i++) {

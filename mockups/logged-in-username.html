@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Logged-in username — mockup</title>
+<!-- Reuses the real stylesheets so this looks pixel-accurate, not a re-guess -->
+<link rel="stylesheet" href="../public/css/base.css" />
+<link rel="stylesheet" href="../public/css/home.css" />
+<style>
+  .note {
+    position: fixed;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 380px;
+    width: calc(100% - 28px);
+    text-align: center;
+    font-size: 0.68rem;
+    font-weight: normal;
+    color: #8f9aa3;
+    z-index: 5;
+    line-height: 1.4;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 6px 10px;
+    border-radius: 8px;
+  }
+
+  /* --- New piece this mockup previews: small muted username line --- */
+  .logged-in-as {
+    font-size: 0.7rem;
+    font-weight: normal;
+    color: #8f9aa3; /* same muted tone as .stat-tile .label / .page-subtitle */
+    margin: 2px 0 6px;
+  }
+</style>
+</head>
+<body>
+
+  <div class="note">Mockup: small "Logged in as ___" line under the date, above the Log Out button. Reuses the same muted grey used by stat-tile labels elsewhere.</div>
+
+  <div class="page active" id="homePage">
+    <div class="title-page" id="title-page">
+      <h1 class="center-text">Check In</h1>
+      <p class="center-text"><div class="center-text" id="dateBox">August 8</div></p>
+
+      <div class="center-container" id="authStatus">
+        <!-- NEW: small muted line, only shown while logged in -->
+        <div class="logged-in-as">Logged in as harley</div>
+        <button class="glass-button" id="logoutButton">Log Out</button>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

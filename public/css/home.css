@@ -29,6 +29,14 @@
     margin: 0;
 }
 
+/* Small muted "Logged in as ___" line, shown above the Log Out button */
+.logged-in-as {
+    font-size: 0.7rem;
+    font-weight: normal;
+    color: #8f9aa3; /* same muted tone as .stat-tile .label */
+    margin: 2px 0 6px;
+}
+
 /* Which week the Home page's day strip is showing */
 .home-week-label {
     text-align: center;
