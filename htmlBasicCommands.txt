@@ -1,0 +1,80 @@
+HTML Cheatsheet: Basic Elements, Attributes, and Closing Rules
+
+=== Core Concept: Closing Tags vs. Self-Closing Tags ===
+1. Container Elements (Need Closing Tags):
+   - Elements that hold text, links, or other elements inside them.
+   - They use an opening tag and a closing tag with a forward slash (e.g., <p>...</p>).
+   
+2. Void / Self-Closing Elements (Do NOT Need Closing Tags):
+   - Elements that cannot hold inner content. 
+   - Everything they do is handled by attributes, and they end with a slash (e.g., <img /> or <input />).
+
+
+=== Basic HTML Elements & Their Closing Rules ===
+
+1. Paragraph (<p>)
+   - Rule: NEEDS closing tag (<p> ... </p>)
+   - What it does: Defines a block of text/paragraph.
+
+2. Headings (<h1> to <h6>)
+   - Rule: NEEDS closing tag (<h1> ... </h1>)
+   - What it does: Defines headings (from main title <h1> down to sub-heading <h6>).
+
+3. Anchor / Link (<a>)
+   - Rule: NEEDS closing tag (<a href="..."> ... </a>)
+   - What it does: Creates a clickable link to another page or website.
+
+4. Button (<button>)
+   - Rule: NEEDS closing tag (<button> ... </button>)
+   - What it does: Creates a clickable button.
+
+5. Division (<div>)
+   - Rule: NEEDS closing tag (<div> ... </div>)
+   - What it does: A generic container used to group elements together for styling layout.
+
+6. Unordered List (<ul> and <li>)
+   - Rule: BOTH need closing tags (<ul> ... </ul> and <li> ... </li>)
+   - What it does: Creates a bulleted list container and list items.
+
+7. Ordered List (<ol> and <li>)
+   - Rule: BOTH need closing tags (<ol> ... </ol> and <li> ... </li>)
+   - What it does: Creates a numbered list container and list items.
+
+8. Image (<img>)
+   - Rule: SELF-CLOSING (No closing tag, uses <img ... />)
+   - What it does: Embeds an image onto the page.
+
+9. Input (<input />)
+   - Rule: SELF-CLOSING (No closing tag, uses <input ... />)
+   - What it does: Creates an interactive field for user input (text box, checkboxes, etc.).
+
+
+=== Common HTML Attributes (Always use quotes "") ===
+
+1. href
+   - What it does: Specifies the destination URL for a link (<a>).
+   - Example: <a href="https://google.com">Google</a>
+
+2. src
+   - What it does: Specifies the file path or URL for an image (<img>).
+   - Example: <img src="dog.jpg" alt="A cute dog" />
+
+3. alt
+   - What it does: Provides descriptive text for an image if it fails to load.
+   - Example: <img src="dog.jpg" alt="A cute dog" />
+
+4. id
+   - What it does: Gives an element a unique identifier.
+   - Example: <p id="intro-text">Hello</p>
+
+5. class
+   - What it does: Assigns a category name to elements for styling.
+   - Example: <button class="btn-primary">Click</button>
+
+6. type
+   - What it does: Defines the behavior or appearance of an input element.
+   - Example: <input type="password" />
+
+7. disabled
+   - What it does: A boolean attribute that makes an element un-writeable or un-clickable.
+   - Example: <input disabled />

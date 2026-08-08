@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Photos tab — mockup</title>
+<style>
+  :root {
+    --bg-a: #0b0f16;
+    --bg-b: #1b2430;
+    --glass: rgba(255, 255, 255, 0.15);
+    --glass-strong: rgba(255, 255, 255, 0.22);
+    --border: rgba(255, 255, 255, 0.4);
+    --text: #dde3e4;
+    --muted: #cecccc;
+    --muted-2: #8f9aa3;
+    --accent: #b366d9;
+    --accent-soft: rgba(179, 102, 217, 0.22);
+    --danger: #e25a3b;
+  }
+
+  * , *::before, *::after { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    min-height: 100%;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-weight: bold;
+    color: var(--text);
+    background:
+      radial-gradient(ellipse at top, rgba(179, 102, 217, 0.10), transparent 55%),
+      linear-gradient(160deg, var(--bg-b) 0%, var(--bg-a) 60%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 28px 14px 120px;
+  }
+
+  .note {
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 380px;
+    width: calc(100% - 28px);
+    text-align: center;
+    font-size: 0.68rem;
+    font-weight: normal;
+    color: var(--muted-2);
+    z-index: 5;
+    line-height: 1.4;
+  }
+
+  .frame {
+    width: 100%;
+    max-width: 380px;
+    margin-top: 34px;
+  }
+
+  h1 {
+    font-size: clamp(1.4rem, 6vw, 1.8rem);
+    text-align: center;
+    margin: 0 0 4px;
+  }
+
+  .subtitle {
+    text-align: center;
+    font-size: 0.72rem;
+    font-weight: normal;
+    color: var(--muted-2);
+    margin: 0 0 18px;
+  }
+
+  /* Filter pills - reuses the same pill-toggle look as week-modal-toggle-button */
+  .filter-bar {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin: 0 0 18px;
+  }
+
+  .filter-button {
+    flex: 1 1 0;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 7px 0;
+    color: var(--muted);
+    font-family: inherit;
+    font-weight: bold;
+    font-size: 0.75rem;
+    cursor: pointer;
+  }
+
+  .filter-button:hover { color: #fff; }
+
+  .filter-button.active {
+    background: var(--glass-strong);
+    color: #fff;
+    border-color: var(--border);
+  }
+
+  /* Scrollable week list - newest week is the first card */
+  .week-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    max-height: 62vh;
+    overflow-y: auto;
+    padding: 4px 4px 8px;
+    margin: 0 -4px;
+  }
+
+  .week-list::-webkit-scrollbar { width: 6px; }
+  .week-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 999px;
+  }
+
+  .week-card {
+    background: var(--glass);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    padding: 12px 12px 14px;
+  }
+
+  .week-card.is-latest {
+    border-color: rgba(179, 102, 217, 0.6);
+    box-shadow: 0 0 10px rgba(179, 102, 217, 0.25);
+  }
+
+  .week-card-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .week-name {
+    font-size: 0.85rem;
+  }
+
+  .week-name .latest-tag {
+    font-size: 0.6rem;
+    font-weight: bold;
+    color: var(--accent);
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+
+  .week-range {
+    font-size: 0.66rem;
+    font-weight: normal;
+    color: var(--muted-2);
+  }
+
+  .angle-row {
+    display: grid;
+    grid-template-columns: repeat(var(--cols, 3), 1fr);
+    gap: 8px;
+  }
+
+  .angle-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .angle-box.is-hidden { display: none; }
+
+  .angle-label {
+    font-size: 0.6rem;
+    font-weight: bold;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--muted-2);
+  }
+
+  .photo-slot {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    cursor: pointer;
+    background: rgba(0, 0, 0, 0.18);
+  }
+
+  .photo-slot img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .photo-slot.empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.06);
+    border-style: dashed;
+  }
+
+  .photo-slot.empty:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.6);
+  }
+
+  .photo-slot.empty .plus {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: var(--muted);
+    line-height: 1;
+  }
+
+  .photo-slot.filled .placeholder-figure {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  .photo-slot.filled .placeholder-figure svg {
+    width: 60%;
+    height: 78%;
+    opacity: 0.9;
+  }
+
+  .photo-slot.filled.front .placeholder-figure { background: linear-gradient(160deg, #2a3b52, #17202b); }
+  .photo-slot.filled.back  .placeholder-figure { background: linear-gradient(160deg, #33293f, #1a1620); }
+  .photo-slot.filled.side  .placeholder-figure { background: linear-gradient(160deg, #243a34, #141f1c); }
+
+  .photo-slot .remove-photo {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.55);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--muted);
+    font-size: 0.65rem;
+    cursor: pointer;
+  }
+
+  .photo-slot .remove-photo:hover {
+    color: #ffd9d0;
+    background: rgba(226, 90, 59, 0.5);
+    border-color: rgba(226, 90, 59, 0.7);
+  }
+
+  .empty-list-hint {
+    text-align: center;
+    font-size: 0.7rem;
+    font-weight: normal;
+    color: var(--muted-2);
+    margin: 10px 0 0;
+  }
+
+  /* Bottom nav - same shape/behavior as the real app's .page-nav, with Photos added */
+  .page-nav {
+    position: fixed;
+    left: 50%;
+    bottom: 18px;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 6px;
+    padding: 8px;
+    background: var(--glass);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    max-width: calc(100vw - 24px);
+    overflow-x: auto;
+    z-index: 900;
+  }
+
+  .page-nav-button {
+    flex: 0 0 auto;
+    background: transparent;
+    border: none;
+    border-radius: 999px;
+    padding: 9px 16px;
+    color: var(--muted);
+    font-family: inherit;
+    font-weight: bold;
+    font-size: 0.82rem;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .page-nav-button:hover { color: #fff; }
+
+  .page-nav-button.active {
+    background: var(--glass-strong);
+    color: #fff;
+  }
+
+  input[type="file"] { display: none; }
+
+  @media (max-width: 360px) {
+    .angle-label { font-size: 0.55rem; }
+  }
+</style>
+</head>
+<body>
+
+<p class="note">Mockup only — nothing here saves anywhere. Click a “+” box to preview picking your own photo (stays in your browser). Uses the app's real glass/purple look; the background is approximated since <code>background.jpg</code> isn't loaded from this standalone file.</p>
+
+<div class="frame">
+  <h1>Photos</h1>
+  <p class="subtitle">Front / back / side check-ins, one row per week — newest at the top</p>
+
+  <div class="filter-bar" id="filterBar">
+    <button class="filter-button active" data-filter="all">All</button>
+    <button class="filter-button" data-filter="front">Front</button>
+    <button class="filter-button" data-filter="back">Back</button>
+    <button class="filter-button" data-filter="side">Side</button>
+  </div>
+
+  <div class="week-list" id="weekList">
+    <!-- Week cards are generated by the script below so all 6 rows share one template -->
+  </div>
+
+  <p class="empty-list-hint">Scroll for older weeks</p>
+</div>
+
+<nav class="page-nav">
+  <button class="page-nav-button">Home</button>
+  <button class="page-nav-button">Overview</button>
+  <button class="page-nav-button">Calendar</button>
+  <button class="page-nav-button active">Photos</button>
+</nav>
+
+<script>
+  // ---- Demo data: 6 example weeks, newest first, mixed fill states ----
+  var weeks = [
+    { label: "Week 32", range: "Aug 3 – Aug 9", latest: true,  front: false, back: false, side: false },
+    { label: "Week 31", range: "Jul 27 – Aug 2", latest: false, front: true,  back: true,  side: true  },
+    { label: "Week 30", range: "Jul 20 – Jul 26", latest: false, front: true,  back: true,  side: true  },
+    { label: "Week 29", range: "Jul 13 – Jul 19", latest: false, front: true,  back: false, side: true  },
+    { label: "Week 28", range: "Jul 6 – Jul 12",  latest: false, front: true,  back: true,  side: true  },
+    { label: "Week 27", range: "Jun 29 – Jul 5",  latest: false, front: false, back: false, side: false }
+  ];
+
+  var silhouette = '<svg viewBox="0 0 100 140" xmlns="http://www.w3.org/2000/svg">' +
+    '<ellipse cx="50" cy="24" rx="16" ry="18" fill="rgba(255,255,255,0.25)"/>' +
+    '<path d="M20 140 L26 70 Q28 50 50 50 Q72 50 74 70 L80 140 Z" fill="rgba(255,255,255,0.22)"/>' +
+    '</svg>';
+
+  function angleBox(angleKey, angleLabel, hasPhoto) {
+    var box = document.createElement('div');
+    box.className = 'angle-box';
+    box.dataset.angle = angleKey;
+
+    var label = document.createElement('div');
+    label.className = 'angle-label';
+    label.textContent = angleLabel;
+    box.appendChild(label);
+
+    var slot = document.createElement('div');
+
+    if (hasPhoto) {
+      slot.className = 'photo-slot filled ' + angleKey;
+      slot.innerHTML = '<div class="placeholder-figure">' + silhouette + '</div>' +
+                        '<button class="remove-photo" title="Remove this photo">✕</button>';
+    } else {
+      slot.className = 'photo-slot empty';
+      slot.innerHTML = '<span class="plus">+</span>';
+
+      var fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = 'image/*';
+      slot.appendChild(fileInput);
+
+      slot.addEventListener('click', function () {
+        fileInput.click();
+      });
+
+      fileInput.addEventListener('change', function () {
+        if (fileInput.files && fileInput.files[0]) {
+          var url = URL.createObjectURL(fileInput.files[0]);
+          slot.className = 'photo-slot filled ' + angleKey;
+          slot.innerHTML = '<img src="' + url + '" alt="' + angleLabel + ' photo">' +
+                            '<button class="remove-photo" title="Remove this photo">✕</button>';
+          slot.querySelector('.remove-photo').addEventListener('click', function (event) {
+            event.stopPropagation();
+            resetSlot(slot, angleKey, angleLabel);
+          });
+        }
+      });
+    }
+
+    box.appendChild(slot);
+    return box;
+  }
+
+  function resetSlot(slot, angleKey, angleLabel) {
+    slot.className = 'photo-slot empty';
+    slot.innerHTML = '<span class="plus">+</span>';
+    var fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+    slot.appendChild(fileInput);
+    slot.addEventListener('click', function () { fileInput.click(); });
+    fileInput.addEventListener('change', function () {
+      if (fileInput.files && fileInput.files[0]) {
+        var url = URL.createObjectURL(fileInput.files[0]);
+        slot.className = 'photo-slot filled ' + angleKey;
+        slot.innerHTML = '<img src="' + url + '" alt="' + angleLabel + ' photo">' +
+                          '<button class="remove-photo" title="Remove this photo">✕</button>';
+        slot.querySelector('.remove-photo').addEventListener('click', function (event) {
+          event.stopPropagation();
+          resetSlot(slot, angleKey, angleLabel);
+        });
+      }
+    });
+  }
+
+  function buildWeekCard(week) {
+    var card = document.createElement('div');
+    card.className = 'week-card' + (week.latest ? ' is-latest' : '');
+
+    var head = document.createElement('div');
+    head.className = 'week-card-head';
+    head.innerHTML =
+      '<span class="week-name">' + week.label + (week.latest ? '<span class="latest-tag">LATEST</span>' : '') + '</span>' +
+      '<span class="week-range">' + week.range + '</span>';
+    card.appendChild(head);
+
+    var row = document.createElement('div');
+    row.className = 'angle-row';
+    row.appendChild(angleBox('front', 'Front', week.front));
+    row.appendChild(angleBox('back', 'Back', week.back));
+    row.appendChild(angleBox('side', 'Side', week.side));
+    card.appendChild(row);
+
+    return card;
+  }
+
+  var weekList = document.getElementById('weekList');
+  weeks.forEach(function (week) {
+    weekList.appendChild(buildWeekCard(week));
+  });
+
+  // ---- Filter pills: show only the selected angle's box (or all three) ----
+  var filterBar = document.getElementById('filterBar');
+  filterBar.addEventListener('click', function (event) {
+    var button = event.target.closest('.filter-button');
+    if (!button) return;
+
+    filterBar.querySelectorAll('.filter-button').forEach(function (b) {
+      b.classList.remove('active');
+    });
+    button.classList.add('active');
+
+    var filter = button.dataset.filter;
+    document.querySelectorAll('.angle-row').forEach(function (row) {
+      row.style.setProperty('--cols', filter === 'all' ? 3 : 1);
+    });
+    document.querySelectorAll('.angle-box').forEach(function (box) {
+      var show = filter === 'all' || box.dataset.angle === filter;
+      box.classList.toggle('is-hidden', !show);
+    });
+  });
+</script>
+</body>
+</html>

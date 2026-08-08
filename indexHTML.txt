@@ -1,0 +1,40 @@
+Template for index.html
+
+
+
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <title>My test page</title>
+        <!-- This is a comment, this is how u write comments.  -->
+
+        <!-- This links your external style.css file to this HTML page, if u want to use from otherfile. -->
+        <link rel="stylesheet" href="style.css" />
+    
+    <!-- Here is where we write our CSS to target the class -->
+    <style>                 <!-- css code is written here -->
+      .highlight-text {     <!---- start name with . -->
+        color: blue;
+        font-size: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Velmo</h1>
+    
+    <!-- We added the class="highlight-text" to this specific paragraph -->
+     <!--to call the style class we need to write class="the name we gave it", inside the <p>-->
+
+    <p class="highlight-text">Welcome to<strong>Velmo & Co.</strong> page <br/>
+    Please visit our <a href="https://velmo.com">website</a> for more information.
+    </p>
+
+    <img 
+    src="velmo.png"
+    alt="Velmo Logo"
+    width="200"
+    height="100"
+    />
+  </body>
+</html>
