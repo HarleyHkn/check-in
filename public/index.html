@@ -38,9 +38,10 @@
         <!-- Puts today's date below, e.g. "August 8" - js calls displayDate() and fills this in -->
         <p class="center-text"><div class="center-text" id="dateBox"></div></p>
 
-        <!-- Login status: buttons to log in / out - the buttons themselves show login state, no separate status text needed. -->
+        <!-- Login status: buttons to log in / out, plus a note reminding logged-out visitors that entries won't be saved. -->
         <div class="center-container" id="authStatus">
           <div class="logged-in-as" id="loggedInAsText" style="display: none;"></div>
+          <p class="page-subtitle" id="loginRequiredText">Log in to save your data</p>
           <button class="glass-button" id="loginButton">Log In</button>
           <button class="glass-button" id="logoutButton" style="display: none;">Log Out</button>
         </div>
