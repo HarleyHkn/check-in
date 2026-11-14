@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Alla mockups sida vid sida</title>
+<style>
+    * { box-sizing: border-box; }
+    body {
+        margin: 0;
+        padding: 24px 20px 40px;
+        background: #060609;
+        color: #e9e6f2;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    h1 { font-size: 1.1rem; margin: 0 0 4px; text-align: center; }
+    .sub { text-align: center; color: #8f8aa8; font-size: 0.8rem; margin-bottom: 22px; }
+
+    .row {
+        display: flex;
+        gap: 18px;
+        overflow-x: auto;
+        padding-bottom: 14px;
+    }
+
+    .slot { flex: 0 0 auto; width: 400px; }
+    .slot h2 { font-size: 0.85rem; margin: 0 0 8px; color: #c9a9ec; }
+    .slot .note { font-size: 0.68rem; color: #65607c; margin: 0 0 8px; line-height: 1.4; }
+
+    .slot iframe {
+        width: 100%;
+        height: 900px;
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 14px;
+        background: #0c0c12;
+    }
+</style>
+</head>
+<body>
+
+<h1>Check-in — alla mockups just nu</h1>
+<div class="sub">Varje ruta är fortfarande fullt interaktiv (dra, klicka, togglea) - bara inbäddad sida vid sida för överblick. Scrolla raden i sidled.</div>
+
+<div class="row">
+
+    <div class="slot">
+        <h2>1. Overview (hemskärm)</h2>
+        <p class="note">Hero-kort, mini-kort, mått start→nu, flytande Check-in-knapp i botten.</p>
+        <iframe src="overview-concept.html"></iframe>
+    </div>
+
+    <div class="slot">
+        <h2>2. Check-in (ny vecka)</h2>
+        <p class="note">Vikt/steg/mått/foto i en session. Chips visar vad som redan är ifyllt.</p>
+        <iframe src="checkin-concept.html"></iframe>
+    </div>
+
+    <div class="slot">
+        <h2>3. Calendar (historik)</h2>
+        <p class="note">Veckolista grupperad per månad, 4 bockar per vecka, klick öppnar nästa ruta.</p>
+        <iframe src="calendar-concept.html"></iframe>
+    </div>
+
+    <div class="slot">
+        <h2>4. Vecka öppnad från Calendar</h2>
+        <p class="note">Samma Check-in-formulär, förifyllt + redigerbart. "Update check-in" har en bekräftelse-spärr.</p>
+        <iframe src="calendar-week-checkin-view-concept.html"></iframe>
+    </div>
+
+    <div class="slot">
+        <h2>5. Photos (karusell)</h2>
+        <p class="note">Dra för att bläddra veckor, Front/Side/Back-piller, Compare-läge (senaste vs nuvarande).</p>
+        <iframe src="photos-carousel-concept.html"></iframe>
+    </div>
+
+    <div class="slot">
+        <h2>6. Graph</h2>
+        <p class="note">Weight/Steps-toggle, dra för att panorera, nuvarande vecka centrerad, årtal med rollover.</p>
+        <iframe src="graph-concept.html"></iframe>
+    </div>
+
+</div>
+
+</body>
+</html>

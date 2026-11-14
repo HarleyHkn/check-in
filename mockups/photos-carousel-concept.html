@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Photos-koncept: cylinder-karusell + Compare</title>
+<style>
+    * { box-sizing: border-box; }
+
+    /* ---- FÄRGSYSTEM v2: korall, inte orange/röd-orange - se REDESIGN-PLAN.md.
+       Alla färger i den här filen kommer härifrån, inga andra hex-värden.
+       (This file used to run its own slightly different dark palette -
+       #121218/#dde3e4/#8f9aa3 - now unified onto the same variables as the
+       other five screens.) ---- */
+    :root {
+        --bg-page: #060609;
+        --bg-card: #15131D;
+        --bg-raised: #20202C;
+        --text-primary: #FFFFFF;
+        --text-muted: #8f8aa8;
+        --text-dim: #65607c;
+
+        --accent: #E05438;
+        --accent-rgb: 224, 84, 56;
+        --accent-light: #FC8C5C;
+        --accent-red: #96281B;
+        --accent-deep: #603030;
+        --accent-outline: #D05038;
+
+        --positive: #6CD49C;
+        --positive-bg: #2D3331;
+    }
+
+    body {
+        margin: 0;
+        padding: 30px 16px 60px;
+        background: var(--bg-page);
+        color: var(--text-primary);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .intro { max-width: 640px; text-align: center; margin-bottom: 24px; }
+    .intro h1 { font-size: 1.2rem; margin-bottom: 4px; }
+    .intro p { color: var(--text-muted); font-size: 0.82rem; }
+
+    .top-bar {
+        width: 100%;
+        max-width: 420px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 18px;
+        position: relative;
+        gap: 12px;
+    }
+
+    .top-bar h2 { font-size: 1rem; margin: 0; }
+
+    .profile-btn {
+        width: 34px; height: 34px; border-radius: 50%;
+        background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+        display: flex; align-items: center; justify-content: center;
+        color: var(--accent);
+        font-size: 1rem; cursor: pointer; flex: 0 0 auto;
+    }
+    .profile-menu {
+        display: none;
+        position: absolute;
+        top: 42px;
+        right: 0;
+        width: 190px;
+        background: #1c1a26;
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 14px;
+        padding: 14px;
+        z-index: 40;
+    }
+    .profile-menu.open { display: block; }
+    .profile-menu .logged-out-view p { font-size: 0.72rem; color: var(--text-muted); margin: 0 0 10px; }
+    .profile-menu button {
+        width: 100%; padding: 9px; border: none; border-radius: 10px;
+        font-size: 0.78rem; font-weight: 700; cursor: pointer; margin-top: 6px;
+    }
+    .profile-menu .login-btn { background: linear-gradient(90deg, var(--accent) 0%, var(--accent) 50%, var(--accent-red) 100%); color: #fff; }
+    .profile-menu .logout-btn { background: rgba(255,255,255,0.06); color: #cfc9e6; }
+    .profile-menu .logged-in-view { display: none; }
+    .profile-menu .username { font-size: 0.82rem; font-weight: 700; margin-bottom: 2px; }
+    .profile-menu .username-sub { font-size: 0.64rem; color: var(--text-dim); margin-bottom: 10px; }
+
+    .compare-toggle {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.72rem;
+        color: var(--text-muted);
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .switch { width: 36px; height: 20px; background: rgba(255,255,255,0.1); border-radius: 999px; position: relative; transition: background 0.2s; }
+    .switch.on { background: rgba(255,255,255,0.35); }
+    .switch .knob { position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: left 0.2s; }
+    .switch.on .knob { left: 18px; }
+
+    /* ---------------- Carousel (default view) ---------------- */
+    .carousel-wrap {
+        width: 100%;
+        max-width: 420px;
+        height: 380px;
+        position: relative;
+        perspective: 1100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        touch-action: pan-y;
+        cursor: grab;
+    }
+
+    .carousel-card {
+        position: absolute;
+        width: 190px;
+        height: 254px;
+        border-radius: 14px;
+        background: var(--bg-raised);
+        border: 1px solid rgba(255,255,255,0.08);
+        overflow: hidden;
+        transition: transform 0.35s ease, opacity 0.35s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        /* mirror-image reflection fading into the "ground" below the card -
+           classic CoverFlow trick, makes the carousel feel more alive */
+        -webkit-box-reflect: below 6px linear-gradient(to bottom, transparent, transparent 55%, rgba(255,255,255,0.14));
+    }
+
+    .carousel-card img { width: 100%; flex: 1; object-fit: cover; display: block; }
+
+    .card-foot { width: 100%; padding: 8px; text-align: center; background: rgba(0,0,0,0.25); }
+    .card-foot .wk { font-size: 0.75rem; font-weight: 700; }
+    .card-foot .range { font-size: 0.6rem; color: var(--text-muted); margin-bottom: 6px; }
+
+    .angle-pills { display: flex; gap: 4px; justify-content: center; }
+    .angle-pill {
+        font-size: 0.56rem;
+        padding: 3px 7px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.06);
+        color: #777d95;
+        cursor: pointer;
+    }
+    .angle-pill.active { background: rgba(255,255,255,0.3); color: #fff; }
+    .angle-pill.unavailable { opacity: 0.3; cursor: not-allowed; }
+
+    .hint { font-size: 0.68rem; color: var(--text-dim); margin-top: 10px; text-align: center; }
+
+    /* ---------------- Compare view ---------------- */
+    .compare-wrap {
+        width: 100%;
+        max-width: 420px;
+        display: none;
+        flex-direction: column;
+        align-items: center;
+    }
+    .compare-wrap.visible { display: flex; }
+
+    .compare-row { display: flex; gap: 14px; }
+
+    .compare-card {
+        width: 170px;
+        background: var(--bg-raised);
+        border-radius: 14px;
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,0.08);
+    }
+    .compare-card img { width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block; }
+    .compare-card .tag { text-align: center; font-size: 0.65rem; font-weight: 700; padding: 6px; background: rgba(255,255,255,0.1); color: var(--text-primary); }
+    .compare-card .range { text-align: center; font-size: 0.6rem; color: var(--text-muted); padding: 4px 0 8px; }
+
+    .shared-pills { display: flex; gap: 6px; margin-top: 14px; }
+</style>
+</head>
+<body>
+
+<div class="intro">
+    <h1>Photos-koncept: svep-karusell + Compare</h1>
+    <p>Dra kort i sidled med fingret/musen för att "snurra" karusellen. Växla Compare uppe till höger för att se Senaste vs Nuvarande sida vid sida. Front/Side/Back-pillerna byter vinkel på kortet (grå = inte uppladdad än den veckan).</p>
+</div>
+
+<div class="top-bar">
+    <h2 id="viewTitle">Photos</h2>
+    <div class="compare-toggle" id="compareToggle">
+        <span>Compare last vs current</span>
+        <div class="switch" id="compareSwitch"><div class="knob"></div></div>
+    </div>
+    <button class="profile-btn" id="profileBtn"><svg viewBox="0 0 24 24" width="16" height="16"><circle cx="12" cy="8" r="4" fill="currentColor"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8v1H4v-1z" fill="currentColor"/></svg></button>
+    <div class="profile-menu" id="profileMenu">
+        <div class="logged-out-view" id="loggedOutView">
+            <p>Log in to save your data across devices.</p>
+            <button class="login-btn">Log in</button>
+        </div>
+        <div class="logged-in-view" id="loggedInView">
+            <div class="username">Harley</div>
+            <div class="username-sub">Logged in</div>
+            <button class="logout-btn" id="logoutBtn">Log out</button>
+        </div>
+    </div>
+</div>
+
+<div class="carousel-wrap" id="carouselWrap">
+    <div id="cardLayer"></div>
+</div>
+<div class="hint" id="carouselHint">Vecka 4 av 6 &nbsp;·&nbsp; dra med fingret/musen</div>
+
+<div class="compare-wrap" id="compareWrap">
+    <div class="compare-row">
+        <div class="compare-card">
+            <div class="tag">LAST</div>
+            <img id="lastImg" src="" />
+            <div class="range" id="lastRange"></div>
+        </div>
+        <div class="compare-card">
+            <div class="tag">CURRENT</div>
+            <img id="currentImg" src="" />
+            <div class="range" id="currentRange"></div>
+        </div>
+    </div>
+    <div class="shared-pills" id="comparePills"></div>
+</div>
+
+<script>
+    // ---- fake placeholder silhouettes (same idea as the real demo-data.js).
+    // Per the color spec: coral outline (#D05038), deep coral fill (#603030) -
+    // no gray/white silhouettes anymore, mirrors --accent-outline/--accent-deep. ----
+    const SIL_FILL = '#603030';
+    const SIL_STROKE = '#D05038';
+    function silhouette(poseExtra) {
+        const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="400">' +
+            '<rect width="300" height="400" fill="#20202c"/>' +
+            '<circle cx="150" cy="95" r="36" fill="' + SIL_FILL + '" stroke="' + SIL_STROKE + '" stroke-width="3"/>' +
+            '<rect x="100" y="138" width="100" height="112" rx="16" fill="' + SIL_FILL + '" stroke="' + SIL_STROKE + '" stroke-width="3"/>' +
+            poseExtra +
+            '<rect x="118" y="252" width="28" height="118" rx="12" fill="' + SIL_FILL + '" stroke="' + SIL_STROKE + '" stroke-width="3"/>' +
+            '<rect x="154" y="252" width="28" height="118" rx="12" fill="' + SIL_FILL + '" stroke="' + SIL_STROKE + '" stroke-width="3"/>' +
+            '</svg>';
+        return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+    }
+    const IMG = {
+        front: silhouette('<rect x="72" y="142" width="22" height="105" rx="11" fill="' + SIL_FILL + '" stroke="' + SIL_STROKE + '" stroke-width="3"/><rect x="206" y="142" width="22" height="105" rx="11" fill="' + SIL_FILL + '" stroke="' + SIL_STROKE + '" stroke-width="3"/>'),
+        side: silhouette('<path d="M 184 98 L 198 106 L 184 115 Z" fill="' + SIL_STROKE + '"/><rect x="176" y="148" width="22" height="95" rx="11" fill="' + SIL_FILL + '" stroke="' + SIL_STROKE + '" stroke-width="3"/>'),
+        back: silhouette('<line x1="150" y1="142" x2="150" y2="248" stroke="' + SIL_STROKE + '" stroke-width="2"/><rect x="72" y="142" width="22" height="105" rx="11" fill="' + SIL_FILL + '" stroke="' + SIL_STROKE + '" stroke-width="3"/><rect x="206" y="142" width="22" height="105" rx="11" fill="' + SIL_FILL + '" stroke="' + SIL_STROKE + '" stroke-width="3"/>')
+    };
+
+    // ---- demo weeks: which angles actually exist for each ----
+    const weeks = [
+        { label: 'Week 41', range: 'Oct 12–18', angles: ['front'] },
+        { label: 'Week 42', range: 'Oct 19–25', angles: ['front', 'side'] },
+        { label: 'Week 43', range: 'Oct 26–Nov 1', angles: ['front', 'side', 'back'] },
+        { label: 'Week 44', range: 'Nov 2–8', angles: ['front'] },
+        { label: 'Week 45', range: 'Nov 9–15', angles: ['front', 'back'] },
+        { label: 'Week 46', range: 'Nov 16–22', angles: ['front', 'side', 'back'] }
+    ];
+
+    let current = weeks.length - 1;             // start on the latest week (always a whole number)
+    const cardAngle = weeks.map(() => 'front');  // each card's own currently-shown angle
+
+    const CARD_SPACING = 92;      // px of drag that equals moving one whole card
+    const EASE_FACTOR = 0.14;      // how much of the remaining distance to close each frame - lower = more delay/lag
+    let isDragging = false;        // true while a finger/mouse is actively dragging
+    let dragOffsetPx = 0;          // live drag distance in pixels, reset once released
+    let targetPos = current;       // where the carousel is trying to get to (a whole number, except while dragging)
+    let displayPos = current;      // where it's actually drawn right now - chases targetPos every frame
+
+    const cardLayer = document.getElementById('cardLayer');
+    const hint = document.getElementById('carouselHint');
+
+    // Built once and kept forever - we only ever move/restyle these same
+    // elements from now on, never recreate them. Recreating them every frame
+    // was the cause of the stutter on release: a brand new element has no
+    // "previous frame" for the browser to transition from, so it just jumps.
+    const cardElements = weeks.map(function (week, i) {
+        const card = document.createElement('div');
+        card.className = 'carousel-card';
+
+        const img = document.createElement('img');
+        card.appendChild(img);
+
+        const foot = document.createElement('div');
+        foot.className = 'card-foot';
+
+        const wk = document.createElement('div');
+        wk.className = 'wk';
+        wk.textContent = week.label;
+        foot.appendChild(wk);
+
+        const range = document.createElement('div');
+        range.className = 'range';
+        range.textContent = week.range;
+        foot.appendChild(range);
+
+        const pills = document.createElement('div');
+        pills.className = 'angle-pills';
+        ['front', 'side', 'back'].forEach(function (angle) {
+            const pill = document.createElement('div');
+            const available = week.angles.includes(angle);
+            pill.className = 'angle-pill' + (available ? '' : ' unavailable');
+            pill.textContent = angle[0].toUpperCase() + angle.slice(1);
+            if (available) {
+                pill.addEventListener('click', function () {
+                    cardAngle[i] = angle;
+                    updateCardStyles(displayPos);
+                });
+            }
+            pills.appendChild(pill);
+        });
+        foot.appendChild(pills);
+        card.appendChild(foot);
+
+        cardLayer.appendChild(card);
+        return { root: card, img: img, pills: pills.children };
+    });
+
+    // Just updates transform/opacity/image on the existing elements above -
+    // called every animation frame, never rebuilds anything.
+    function updateCardStyles(visualPos) {
+        weeks.forEach(function (week, i) {
+            const offset = i - visualPos;
+            const el = cardElements[i];
+
+            if (Math.abs(offset) > 3) {
+                el.root.style.opacity = 0;
+                return;
+            }
+
+            const rotateY = offset * 32;          // degrees around the "cylinder"
+            const translateZ = -Math.abs(offset) * 90;
+            const translateX = offset * 92;
+            const scale = 1 - Math.min(Math.abs(offset), 1) * 0.18;
+            const opacity = Math.max(0, 1 - Math.abs(offset) * 0.3);
+
+            el.root.style.transform = 'translateX(' + translateX + 'px) translateZ(' + translateZ + 'px) rotateY(' + (-rotateY) + 'deg) scale(' + scale + ')';
+            el.root.style.opacity = opacity;
+            el.root.style.zIndex = 10 - Math.round(Math.abs(offset));
+
+            el.img.src = IMG[cardAngle[i]];
+            for (let p = 0; p < el.pills.length; p++) {
+                const angleName = ['front', 'side', 'back'][p];
+                el.pills[p].classList.toggle('active', cardAngle[i] === angleName);
+            }
+        });
+
+        hint.textContent = 'Vecka ' + (current + 1) + ' av ' + weeks.length + '  ·  dra med fingret/musen';
+    }
+
+    // The animation heartbeat: every frame, displayPos closes part of the gap
+    // to targetPos. While dragging, targetPos keeps moving with the pointer,
+    // so displayPos trails slightly behind it - that's the "delay" while
+    // browsing. Once released, targetPos snaps to a whole card and displayPos
+    // eases smoothly into place.
+    function animationLoop() {
+        displayPos += (targetPos - displayPos) * EASE_FACTOR;
+        updateCardStyles(displayPos);
+        requestAnimationFrame(animationLoop);
+    }
+    requestAnimationFrame(animationLoop);
+
+    // Drag/swipe support - targetPos follows the finger/mouse while held down,
+    // then snaps to whichever card ended up closest once released. The actual
+    // on-screen gliding happens in animationLoop() above, not here.
+    let dragStartX = null;
+    const wrap = document.getElementById('carouselWrap');
+
+    wrap.addEventListener('pointerdown', function (e) {
+        isDragging = true;
+        dragStartX = e.clientX;
+        dragOffsetPx = 0;
+        wrap.setPointerCapture(e.pointerId);
+        wrap.style.cursor = 'grabbing';
+    });
+
+    wrap.addEventListener('pointermove', function (e) {
+        if (!isDragging) return;
+        dragOffsetPx = e.clientX - dragStartX;
+        targetPos = current - dragOffsetPx / CARD_SPACING;
+    });
+
+    function endDrag(e) {
+        if (!isDragging) return;
+        isDragging = false;
+        wrap.style.cursor = 'grab';
+
+        current = Math.max(0, Math.min(weeks.length - 1, Math.round(targetPos)));
+        targetPos = current;   // animationLoop() eases displayPos the rest of the way on its own
+        dragOffsetPx = 0;
+    }
+
+    wrap.addEventListener('pointerup', endDrag);
+    wrap.addEventListener('pointercancel', endDrag);
+
+    // ---------------- Compare mode ----------------
+    let compareOn = false;
+    let compareAngle = 'front';
+
+    const compareSwitch = document.getElementById('compareSwitch');
+    const carouselWrap = document.getElementById('carouselWrap');
+    const compareWrap = document.getElementById('compareWrap');
+    function renderCompare() {
+        const last = weeks[weeks.length - 2];
+        const curr = weeks[weeks.length - 1];
+        document.getElementById('lastImg').src = IMG[last.angles.includes(compareAngle) ? compareAngle : last.angles[0]];
+        document.getElementById('currentImg').src = IMG[curr.angles.includes(compareAngle) ? compareAngle : curr.angles[0]];
+        document.getElementById('lastRange').textContent = last.label + ' · ' + last.range;
+        document.getElementById('currentRange').textContent = curr.label + ' · ' + curr.range;
+
+        const pillsWrap = document.getElementById('comparePills');
+        pillsWrap.innerHTML = '';
+        ['front', 'side', 'back'].forEach(function (angle) {
+            const pill = document.createElement('div');
+            pill.className = 'angle-pill' + (compareAngle === angle ? ' active' : '');
+            pill.textContent = angle[0].toUpperCase() + angle.slice(1);
+            pill.addEventListener('click', function () { compareAngle = angle; renderCompare(); });
+            pillsWrap.appendChild(pill);
+        });
+    }
+
+    document.getElementById('compareToggle').addEventListener('click', function () {
+        compareOn = !compareOn;
+        compareSwitch.classList.toggle('on', compareOn);
+        carouselWrap.style.display = compareOn ? 'none' : 'flex';
+        document.getElementById('carouselHint').style.display = compareOn ? 'none' : 'block';
+        compareWrap.classList.toggle('visible', compareOn);
+        document.getElementById('viewTitle').textContent = compareOn ? 'Compare' : 'Photos';
+        if (compareOn) renderCompare();
+    });
+
+    const profileBtn = document.getElementById('profileBtn');
+    const profileMenu = document.getElementById('profileMenu');
+    profileBtn.addEventListener('click', function (e) { e.stopPropagation(); profileMenu.classList.toggle('open'); });
+    document.addEventListener('click', function () { profileMenu.classList.remove('open'); });
+    profileMenu.addEventListener('click', function (e) { e.stopPropagation(); });
+    document.querySelector('.login-btn').addEventListener('click', function () {
+        document.getElementById('loggedOutView').style.display = 'none';
+        document.getElementById('loggedInView').style.display = 'block';
+    });
+    document.getElementById('logoutBtn').addEventListener('click', function () {
+        document.getElementById('loggedOutView').style.display = 'block';
+        document.getElementById('loggedInView').style.display = 'none';
+        profileMenu.classList.remove('open');
+    });
+</script>
+
+</body>
+</html>

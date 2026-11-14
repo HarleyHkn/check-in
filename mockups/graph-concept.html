@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Graph-koncept: pan-to-scroll trendgraf</title>
+<style>
+    * { box-sizing: border-box; }
+
+    /* ---- FÄRGSYSTEM v2: korall, inte orange/röd-orange - se REDESIGN-PLAN.md.
+       Alla färger i den här filen kommer härifrån, inga andra hex-värden. ---- */
+    :root {
+        --bg-page: #060609;
+        --bg-card: #15131D;
+        --bg-raised: #20202C;
+        --text-primary: #FFFFFF;
+        --text-muted: #8f8aa8;
+        --text-dim: #65607c;
+
+        --accent: #E05438;
+        --accent-rgb: 224, 84, 56;
+        --accent-light: #FC8C5C;
+        --accent-red: #96281B;
+        --accent-deep: #603030;
+
+        --positive: #6CD49C;
+        --positive-bg: #2D3331;
+
+        --hero-grad-top: #331D21;
+    }
+
+    body {
+        margin: 0;
+        padding: 36px 16px 60px;
+        background: var(--bg-page);
+        color: var(--text-primary);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .intro { max-width: 640px; text-align: center; margin-bottom: 26px; }
+    .intro h1 { font-size: 1.2rem; margin-bottom: 4px; }
+    .intro p { color: var(--text-muted); font-size: 0.8rem; line-height: 1.5; }
+
+    .phone { width: 360px; position: relative; }
+
+    .page-top-bar { display: flex; justify-content: flex-end; margin-bottom: 10px; }
+    .profile-btn {
+        width: 34px; height: 34px; border-radius: 50%;
+        background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+        display: flex; align-items: center; justify-content: center;
+        color: var(--accent);
+        font-size: 1rem; cursor: pointer;
+    }
+    .profile-menu {
+        display: none;
+        position: absolute;
+        top: 46px;
+        right: 0;
+        width: 190px;
+        background: #1c1a26;
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 14px;
+        padding: 14px;
+        z-index: 40;
+    }
+    .profile-menu.open { display: block; }
+    .profile-menu .logged-out-view p { font-size: 0.72rem; color: var(--text-muted); margin: 0 0 10px; }
+    .profile-menu button {
+        width: 100%; padding: 9px; border: none; border-radius: 10px;
+        font-size: 0.78rem; font-weight: 700; cursor: pointer; margin-top: 6px;
+    }
+    .profile-menu .login-btn { background: linear-gradient(90deg, var(--accent) 0%, var(--accent) 50%, var(--accent-red) 100%); color: #fff; }
+    .profile-menu .logout-btn { background: rgba(255,255,255,0.06); color: #cfc9e6; }
+    .profile-menu .logged-in-view { display: none; }
+    .profile-menu .username { font-size: 0.82rem; font-weight: 700; margin-bottom: 2px; }
+    .profile-menu .username-sub { font-size: 0.64rem; color: var(--text-dim); margin-bottom: 10px; }
+    .phone h2 { font-size: 1.05rem; margin: 0 0 16px; font-weight: 800; }
+
+    /* There's only one accent now (coral) - both metrics light up the same
+       way when active, the chart itself is what actually carries the color. */
+    .toggle { display: flex; gap: 6px; margin-bottom: 16px; }
+    .toggle button { flex: 1; background: rgba(255,255,255,0.05); border: none; border-radius: 999px; padding: 8px 0; color: var(--text-muted); font-size: 0.8rem; font-weight: 700; cursor: pointer; }
+    .toggle button.active { background: linear-gradient(90deg, var(--accent) 0%, var(--accent) 50%, var(--accent-red) 100%); color: #fff; }
+
+    /* Same warm dark-red corner-glow as the Overview hero card, fading into
+       the plain card color by ~60% - not a full top-to-bottom tint. */
+    .chart-card {
+        background: radial-gradient(120% 140% at 15% 0%, var(--hero-grad-top), var(--bg-card) 60%);
+        border-radius: 20px;
+        padding: 20px 14px 10px;
+        margin-bottom: 14px;
+        position: relative;
+    }
+
+    /* faint year label, centered above everything else - only reason it's
+       there at all is to make a year-boundary crossing legible while panning */
+    .year-tag { text-align: center; font-size: 0.68rem; color: #4a4560; letter-spacing: 0.06em; margin-bottom: 2px; }
+
+    .chart-headline { display: flex; justify-content: space-between; align-items: baseline; padding: 0 6px; margin-bottom: 4px; }
+    .chart-headline .big { font-size: 1.8rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .chart-headline .unit { font-size: 0.9rem; color: var(--text-muted); margin-left: 3px; }
+    .chart-headline .wk-tag { font-size: 0.68rem; color: var(--text-muted); }
+
+    /* overflow hidden so the curve/dots don't visibly poke out past the
+       rounded card edges while panning - the SVG viewBox still clips too */
+    .chart-wrap { position: relative; touch-action: pan-y; cursor: grab; overflow: hidden; border-radius: 10px; }
+    .chart-wrap.dragging { cursor: grabbing; }
+    .chart-wrap svg { width: 100%; height: 160px; display: block; }
+
+    /* only ONE marked point exists - whichever week is currently the
+       headline number - everything else is just the plain curve. Uses the
+       light coral ("persika") shade per the color spec, not plain white. */
+    .point-dot { fill: var(--accent-light); }
+
+    .x-labels { display: flex; justify-content: space-between; padding: 2px 6px 10px; font-size: 0.62rem; color: var(--text-dim); }
+    .x-labels span.active { color: var(--text-primary); font-weight: 700; }
+
+    .hint { text-align: center; font-size: 0.68rem; color: var(--text-dim); margin-top: -4px; }
+
+    /* ---- bottom nav: 4 side tabs (2+2) around the floating Check-in button ---- */
+    .nav-wrap { position: relative; margin-top: 26px; }
+    .bottom-nav { display: flex; justify-content: space-around; align-items: center; background: var(--bg-card); border-radius: 22px; padding: 12px 6px; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 0.58rem; color: var(--text-dim); flex: 1; }
+    .nav-item .nav-icon { font-size: 1rem; }
+    .nav-item.active { color: var(--text-primary); }
+    .fab-float {
+        position: absolute; left: 50%; top: -26px; transform: translateX(-50%);
+        width: 54px; height: 54px; border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent) 50%, var(--accent-red) 100%);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.5rem; color: #fff;
+        box-shadow: 0 10px 24px rgba(var(--accent-rgb), 0.5), 0 0 0 6px var(--bg-page);
+    }
+</style>
+</head>
+<body>
+
+<div class="intro">
+    <h1>Graph-koncept — panorera grafen, som korten</h1>
+    <p>16 veckors data, 7 synliga åt gången, dra för att panorera. Bara EN markerad prick - den vecka som visas som huvudsiffran. Svag årtals-text byter år vid vecka 1/52-gränsen. NYTT: nuvarande vecka vilar nu i MITTEN av grafen, inte i högerkanten - högra halvan är tom eftersom det inte finns någon framtida data än. Du kan bara panorera bakåt i tiden från den punkten, inte längre till höger än "nu".</p>
+</div>
+
+<div class="phone">
+    <div class="page-top-bar">
+        <button class="profile-btn" id="profileBtn"><svg viewBox="0 0 24 24" width="16" height="16"><circle cx="12" cy="8" r="4" fill="currentColor"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8v1H4v-1z" fill="currentColor"/></svg></button>
+    </div>
+    <div class="profile-menu" id="profileMenu">
+        <div class="logged-out-view" id="loggedOutView">
+            <p>Log in to save your data across devices.</p>
+            <button class="login-btn">Log in</button>
+        </div>
+        <div class="logged-in-view" id="loggedInView">
+            <div class="username">Harley</div>
+            <div class="username-sub">Logged in</div>
+            <button class="logout-btn" id="logoutBtn">Log out</button>
+        </div>
+    </div>
+
+    <h2>Graph</h2>
+
+    <div class="toggle">
+        <button class="active" data-metric="weight">Weight</button>
+        <button data-metric="steps">Steps</button>
+    </div>
+
+    <div class="chart-card">
+        <div class="year-tag" id="yearTag">2026</div>
+        <div class="chart-headline">
+            <div><span class="big" id="headlineValue">81.9</span><span class="unit" id="headlineUnit">kg</span></div>
+            <div class="wk-tag" id="headlineWeek">Week 46</div>
+        </div>
+        <div class="chart-wrap" id="chartWrap">
+            <svg id="chartSvg" viewBox="0 0 320 160" preserveAspectRatio="none">
+                <defs>
+                    <linearGradient id="chartFade" x1="0" y1="0" x2="0" y2="1">
+                        <stop id="chartFadeStop1" offset="0%" stop-color="#E05438" stop-opacity="0.45"/>
+                        <stop id="chartFadeStop2" offset="100%" stop-color="#E05438" stop-opacity="0"/>
+                    </linearGradient>
+                </defs>
+                <path id="areaPath" fill="url(#chartFade)"/>
+                <path id="linePath" fill="none" stroke="#FC8C5C" stroke-width="2.5"/>
+                <g id="dotsLayer"></g>
+            </svg>
+        </div>
+        <div class="x-labels" id="xLabels"></div>
+    </div>
+    <div class="hint">Dra för att panorera grafen bakåt/framåt i tiden</div>
+
+    <div class="nav-wrap">
+        <div class="fab-float">+</div>
+        <div class="bottom-nav">
+            <div class="nav-item"><span class="nav-icon">◈</span>Overview</div>
+            <div class="nav-item"><span class="nav-icon">▦</span>Calendar</div>
+            <div class="nav-item active"><span class="nav-icon">∿</span>Graph</div>
+            <div class="nav-item"><span class="nav-icon">▢</span>Photos</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 16 weeks of demo data - only VISIBLE_COUNT fit on screen at once, the
+    // rest is what panning reveals. Each week carries its own {num, year} so
+    // panning across a year boundary (week 1 <-> week 52) is unambiguous -
+    // simplified to a fixed 52 weeks/year for this mockup, real ISO weeks can
+    // occasionally be 53.
+    const WEEKS_PER_YEAR = 52;
+    const CURRENT_WEEK = 5;
+    const CURRENT_YEAR = 2026;
+
+    const weeks = [];
+    let walkWeek = CURRENT_WEEK, walkYear = CURRENT_YEAR;
+    for (let i = 0; i < 16; i++) {
+        weeks.unshift({ num: walkWeek, year: walkYear, label: 'W' + walkWeek });
+        walkWeek -= 1;
+        if (walkWeek < 1) { walkWeek = WEEKS_PER_YEAR; walkYear -= 1; }
+    }
+
+    const data = {
+        weight: { values: [86.8,86.3,86.5,85.9,85.6,85.2,85.4,84.8,84.2,83.6,83.9,83.1,82.7,82.3,81.9,82.1].slice(0, weeks.length), unit: 'kg' },
+        steps: { values: [5900,6100,6000,6400,6300,6700,6800,7200,6950,7600,8100,8070,8490,8200,8650,8400].slice(0, weeks.length), unit: '' }
+    };
+
+    // One accent (coral) for both metrics now - mirrors --accent-light/--accent
+    // from the CSS color system. Duplicated here only because these are set
+    // via setAttribute on the SVG, not through a stylesheet rule.
+    const METRIC_COLORS = {
+        weight: { line: '#FC8C5C', fade: '#E05438' },
+        steps: { line: '#FC8C5C', fade: '#E05438' }
+    };
+
+    const CHART_W = 320, CHART_H = 160, PAD_Y = 16, PAD_TOP_DOT = 8;
+    const VISIBLE_COUNT = 7;
+    const CENTER_SLOT = Math.floor((VISIBLE_COUNT - 1) / 2);   // slot 3 of 0..6 - the middle of the window
+    const WEEK_SPACING = CHART_W / (VISIBLE_COUNT - 1);
+    const EASE_FACTOR = 0.16;
+
+    // The current/latest week always rests at the CENTER slot, not the right
+    // edge - there's simply no data to the right of it yet, so that half of
+    // the chart stays blank on purpose. You can only pan further into the
+    // past from here, never "past now" into empty future space.
+    function clampViewStart(v) {
+        const maxViewStart = (weeks.length - 1) - CENTER_SLOT;
+        return Math.max(0, Math.min(maxViewStart, v));
+    }
+
+    let activeMetric = 'weight';
+    let viewStart = clampViewStart(weeks.length - 1 - CENTER_SLOT);   // target: latest week centered
+    let displayViewStart = viewStart;                // eased value that actually gets drawn
+    let isDragging = false;
+    let dragStartX = 0;
+    let dragStartViewStart = viewStart;
+
+    const areaPath = document.getElementById('areaPath');
+    const linePath = document.getElementById('linePath');
+    const dotsLayer = document.getElementById('dotsLayer');
+    const chartWrap = document.getElementById('chartWrap');
+    const xLabelsEl = document.getElementById('xLabels');
+
+    // Just ONE persistent dot - it marks whichever week is the current
+    // headline number, nothing else on the curve gets a marker.
+    const activeDot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    activeDot.setAttribute('r', 5);
+    activeDot.setAttribute('class', 'point-dot');
+    dotsLayer.appendChild(activeDot);
+
+    // Persistent x-axis label slots - always exactly VISIBLE_COUNT of them,
+    // their TEXT changes as you pan rather than the elements themselves moving.
+    const labelElements = [];
+    for (let s = 0; s < VISIBLE_COUNT; s++) {
+        const span = document.createElement('span');
+        xLabelsEl.appendChild(span);
+        labelElements.push(span);
+    }
+
+    function yFor(value, min, range) {
+        return PAD_Y + (1 - (value - min) / range) * (CHART_H - PAD_Y * 2);
+    }
+
+    function smoothPath(points) {
+        let d = 'M ' + points[0].x + ',' + points[0].y;
+        for (let i = 0; i < points.length - 1; i++) {
+            const p0 = points[i === 0 ? 0 : i - 1];
+            const p1 = points[i];
+            const p2 = points[i + 1];
+            const p3 = points[i + 2 < points.length ? i + 2 : i + 1];
+            const c1x = p1.x + (p2.x - p0.x) / 6;
+            const c1y = p1.y + (p2.y - p0.y) / 6;
+            const c2x = p2.x - (p3.x - p1.x) / 6;
+            const c2y = p2.y - (p3.y - p1.y) / 6;
+            d += ' C ' + c1x + ',' + c1y + ' ' + c2x + ',' + c2y + ' ' + p2.x + ',' + p2.y;
+        }
+        return d;
+    }
+
+    function formatValue(v) {
+        return activeMetric === 'steps' ? Math.round(v).toLocaleString('sv-SE') : v.toFixed(1);
+    }
+
+    // Draws everything for the current displayViewStart (can be fractional
+    // while panning) - called every animation frame.
+    function draw() {
+        const values = data[activeMetric].values;
+        const min = Math.min(...values);
+        const max = Math.max(...values);
+        const range = (max - min) || 1;
+
+        const points = values.map(function (v, i) {
+            return { x: (i - displayViewStart) * WEEK_SPACING, y: yFor(v, min, range) };
+        });
+
+        const linedPath = smoothPath(points);
+        linePath.setAttribute('d', linedPath);
+        areaPath.setAttribute('d', linedPath + ' L ' + points[points.length - 1].x + ',' + CHART_H + ' L ' + points[0].x + ',' + CHART_H + ' Z');
+
+        const colors = METRIC_COLORS[activeMetric];
+        linePath.setAttribute('stroke', colors.line);
+        document.getElementById('chartFadeStop1').setAttribute('stop-color', colors.fade);
+        document.getElementById('chartFadeStop2').setAttribute('stop-color', colors.fade);
+
+        // the week currently sitting at the right edge of the visible window
+        // is the one the headline number reflects, same as "latest" on Overview
+        const headlineIndex = Math.max(0, Math.min(weeks.length - 1, Math.round(displayViewStart + CENTER_SLOT)));
+
+        // the single marked dot always sits on the headline point only
+        activeDot.setAttribute('cx', points[headlineIndex].x);
+        activeDot.setAttribute('cy', points[headlineIndex].y);
+
+        for (let s = 0; s < VISIBLE_COUNT; s++) {
+            const idx = Math.round(displayViewStart) + s;
+            const label = labelElements[s];
+            if (idx >= 0 && idx < weeks.length) {
+                label.textContent = weeks[idx].label;
+                label.classList.toggle('active', idx === headlineIndex);
+            } else {
+                label.textContent = '';
+            }
+        }
+
+        document.getElementById('headlineValue').textContent = formatValue(values[headlineIndex]);
+        document.getElementById('headlineUnit').textContent = data[activeMetric].unit;
+        document.getElementById('headlineWeek').textContent = weeks[headlineIndex].label;
+        document.getElementById('yearTag').textContent = weeks[headlineIndex].year;
+    }
+
+    // Heartbeat: displayViewStart eases toward viewStart every frame, exactly
+    // like the photo carousel - gives the same "slight delay while browsing"
+    // feel while dragging, and a smooth glide into place on release.
+    function animationLoop() {
+        displayViewStart += (viewStart - displayViewStart) * EASE_FACTOR;
+        draw();
+        requestAnimationFrame(animationLoop);
+    }
+    requestAnimationFrame(animationLoop);
+
+    chartWrap.addEventListener('pointerdown', function (e) {
+        isDragging = true;
+        chartWrap.classList.add('dragging');
+        dragStartX = e.clientX;
+        dragStartViewStart = viewStart;
+        chartWrap.setPointerCapture(e.pointerId);
+    });
+
+    chartWrap.addEventListener('pointermove', function (e) {
+        if (!isDragging) return;
+        const dragOffsetPx = e.clientX - dragStartX;
+        // direct manipulation: the curve should move WITH the finger, so
+        // dragging right slides the visible window left (reveals older weeks
+        // sliding in from the left) exactly like dragging a strip of paper.
+        viewStart = clampViewStart(dragStartViewStart - dragOffsetPx / WEEK_SPACING);
+    });
+
+    function endDrag() {
+        if (!isDragging) return;
+        isDragging = false;
+        chartWrap.classList.remove('dragging');
+        viewStart = clampViewStart(Math.round(viewStart));   // settle on a whole week boundary
+    }
+    chartWrap.addEventListener('pointerup', endDrag);
+    chartWrap.addEventListener('pointercancel', endDrag);
+
+    document.querySelectorAll('.toggle button').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            document.querySelectorAll('.toggle button').forEach(function (b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+            activeMetric = btn.dataset.metric;
+        });
+    });
+
+    const profileBtn = document.getElementById('profileBtn');
+    const profileMenu = document.getElementById('profileMenu');
+    profileBtn.addEventListener('click', function (e) { e.stopPropagation(); profileMenu.classList.toggle('open'); });
+    document.addEventListener('click', function () { profileMenu.classList.remove('open'); });
+    profileMenu.addEventListener('click', function (e) { e.stopPropagation(); });
+    document.querySelector('.login-btn').addEventListener('click', function () {
+        document.getElementById('loggedOutView').style.display = 'none';
+        document.getElementById('loggedInView').style.display = 'block';
+    });
+    document.getElementById('logoutBtn').addEventListener('click', function () {
+        document.getElementById('loggedOutView').style.display = 'block';
+        document.getElementById('loggedInView').style.display = 'none';
+        profileMenu.classList.remove('open');
+    });
+</script>
+
+</body>
+</html>

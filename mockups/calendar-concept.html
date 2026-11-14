@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Calendar-koncept: premium veckolista</title>
+<style>
+    * { box-sizing: border-box; }
+
+    /* ---- FÄRGSYSTEM v2: korall, inte orange/röd-orange - se REDESIGN-PLAN.md.
+       Alla färger i den här filen kommer härifrån, inga andra hex-värden. ---- */
+    :root {
+        --bg-page: #060609;
+        --bg-card: #15131D;
+        --bg-raised: #20202C;
+        --text-primary: #FFFFFF;
+        --text-muted: #8f8aa8;
+        --text-dim: #65607c;
+
+        --accent: #E05438;
+        --accent-rgb: 224, 84, 56;
+        --accent-light: #FC8C5C;
+        --accent-red: #96281B;
+        --accent-deep: #603030;
+
+        --positive: #6CD49C;
+        --positive-bg: #2D3331;
+
+        --current-week-tint: #2B1A20;
+    }
+
+    body {
+        margin: 0;
+        padding: 36px 16px 60px;
+        background: var(--bg-page);
+        color: var(--text-primary);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .intro { max-width: 640px; text-align: center; margin-bottom: 26px; }
+    .intro h1 { font-size: 1.2rem; margin-bottom: 4px; }
+    .intro p { color: var(--text-muted); font-size: 0.8rem; line-height: 1.5; }
+
+    .phone { width: 360px; position: relative; }
+
+    .page-top-bar { display: flex; justify-content: flex-end; margin-bottom: 10px; }
+    .profile-btn {
+        width: 34px; height: 34px; border-radius: 50%;
+        background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+        display: flex; align-items: center; justify-content: center;
+        color: var(--accent);
+        font-size: 1rem; cursor: pointer;
+    }
+    .profile-menu {
+        display: none;
+        position: absolute;
+        top: 46px;
+        right: 0;
+        width: 190px;
+        background: #1c1a26;
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 14px;
+        padding: 14px;
+        z-index: 40;
+    }
+    .profile-menu.open { display: block; }
+    .profile-menu .logged-out-view p { font-size: 0.72rem; color: var(--text-muted); margin: 0 0 10px; }
+    .profile-menu button {
+        width: 100%; padding: 9px; border: none; border-radius: 10px;
+        font-size: 0.78rem; font-weight: 700; cursor: pointer; margin-top: 6px;
+    }
+    .profile-menu .login-btn { background: linear-gradient(90deg, var(--accent) 0%, var(--accent) 50%, var(--accent-red) 100%); color: #fff; }
+    .profile-menu .logout-btn { background: rgba(255,255,255,0.06); color: #cfc9e6; }
+    .profile-menu .logged-in-view { display: none; }
+    .profile-menu .username { font-size: 0.82rem; font-weight: 700; margin-bottom: 2px; }
+    .profile-menu .username-sub { font-size: 0.64rem; color: var(--text-dim); margin-bottom: 10px; }
+    .phone h2 { font-size: 1.05rem; margin: 0 0 18px; font-weight: 800; }
+
+    .month-label {
+        font-size: 0.68rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-dim);
+        margin: 18px 0 8px;
+    }
+    .month-label:first-of-type { margin-top: 0; }
+
+    .week-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: var(--bg-card);
+        border-radius: 16px;
+        padding: 12px 14px;
+        margin-bottom: 8px;
+        cursor: pointer;
+    }
+
+    /* "Latest week" gets a faint warm coral-red tint per the color spec,
+       fading into the normal card color - not a neutral white glow anymore. */
+    .week-row.current {
+        background: radial-gradient(120% 140% at 15% 0%, var(--current-week-tint), var(--bg-card) 65%);
+    }
+
+    .wk-info .wk-num { font-weight: 700; font-size: 0.86rem; }
+    .wk-info .wk-range { font-size: 0.64rem; color: var(--text-muted); margin-top: 1px; }
+    .wk-info .wk-tag { font-size: 0.56rem; font-weight: 700; color: var(--text-primary); margin-left: 6px; vertical-align: middle; }
+
+    .check-group { display: flex; gap: 8px; align-items: center; }
+    .check-item { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+    .check-dot {
+        width: 20px; height: 20px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.62rem; font-weight: 700;
+        background: rgba(255,255,255,0.05); color: #4a4560;
+    }
+    /* Every filled chip is coral, regardless of type - no gray checkmarks.
+       Same coral-to-red gradient as the Save button/FAB, per feedback. */
+    .check-dot.done { background: linear-gradient(135deg, var(--accent) 0%, var(--accent) 50%, var(--accent-red) 100%); color: #fff; }
+    .check-label { font-size: 0.5rem; color: var(--text-dim); text-transform: uppercase; }
+
+    .chevron { color: #4a4560; font-size: 0.9rem; margin-left: 4px; }
+
+    /* ---- same bottom nav as Overview, Calendar marked active this time ---- */
+    .nav-wrap { position: relative; margin-top: 26px; }
+    .bottom-nav { display: flex; justify-content: space-around; align-items: center; background: var(--bg-card); border-radius: 22px; padding: 12px 6px; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 0.6rem; color: var(--text-dim); flex: 1; }
+    .nav-item .nav-icon { font-size: 1.05rem; }
+    .nav-item.active { color: var(--text-primary); }
+    .fab-float {
+        position: absolute; left: 50%; top: -26px; transform: translateX(-50%);
+        width: 54px; height: 54px; border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent) 50%, var(--accent-red) 100%);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.5rem; color: #fff;
+        box-shadow: 0 10px 24px rgba(var(--accent-rgb), 0.5), 0 0 0 6px var(--bg-page);
+    }
+</style>
+</head>
+<body>
+
+<div class="intro">
+    <h1>Calendar-koncept — premium veckolista</h1>
+    <p>Samma Alternativ A som tidigare (vecko-nr + datum + 4 bockar för Vikt/Steg/Mått/Foto), men nu i samma mörka/lila premium-stil som Overview och Check-in - och samma flytande check-in-knapp i botten, så det känns som EN app istället för tre olika stilar.</p>
+</div>
+
+<div class="phone">
+    <div class="page-top-bar">
+        <button class="profile-btn" id="profileBtn"><svg viewBox="0 0 24 24" width="16" height="16"><circle cx="12" cy="8" r="4" fill="currentColor"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8v1H4v-1z" fill="currentColor"/></svg></button>
+    </div>
+    <div class="profile-menu" id="profileMenu">
+        <div class="logged-out-view" id="loggedOutView">
+            <p>Log in to save your data across devices.</p>
+            <button class="login-btn">Log in</button>
+        </div>
+        <div class="logged-in-view" id="loggedInView">
+            <div class="username">Harley</div>
+            <div class="username-sub">Logged in</div>
+            <button class="logout-btn" id="logoutBtn">Log out</button>
+        </div>
+    </div>
+
+    <h2>Calendar</h2>
+
+    <div class="month-label">November</div>
+
+    <div class="week-row current">
+        <div class="wk-info"><span class="wk-num">Week 46</span><span class="wk-tag">● latest</span><div class="wk-range">Nov 16–22</div></div>
+        <div class="check-group">
+            <div class="check-item"><div class="check-dot done weight">✓</div><div class="check-label">Vikt</div></div>
+            <div class="check-item"><div class="check-dot done steps">✓</div><div class="check-label">Steg</div></div>
+            <div class="check-item"><div class="check-dot">·</div><div class="check-label">Mått</div></div>
+            <div class="check-item"><div class="check-dot">·</div><div class="check-label">Foto</div></div>
+            <span class="chevron">›</span>
+        </div>
+    </div>
+
+    <div class="week-row">
+        <div class="wk-info"><span class="wk-num">Week 45</span><div class="wk-range">Nov 9–15</div></div>
+        <div class="check-group">
+            <div class="check-item"><div class="check-dot done weight">✓</div><div class="check-label">Vikt</div></div>
+            <div class="check-item"><div class="check-dot done steps">✓</div><div class="check-label">Steg</div></div>
+            <div class="check-item"><div class="check-dot done neutral">✓</div><div class="check-label">Mått</div></div>
+            <div class="check-item"><div class="check-dot done neutral">✓</div><div class="check-label">Foto</div></div>
+            <span class="chevron">›</span>
+        </div>
+    </div>
+
+    <div class="week-row">
+        <div class="wk-info"><span class="wk-num">Week 44</span><div class="wk-range">Nov 2–8</div></div>
+        <div class="check-group">
+            <div class="check-item"><div class="check-dot done weight">✓</div><div class="check-label">Vikt</div></div>
+            <div class="check-item"><div class="check-dot">·</div><div class="check-label">Steg</div></div>
+            <div class="check-item"><div class="check-dot done neutral">✓</div><div class="check-label">Mått</div></div>
+            <div class="check-item"><div class="check-dot">·</div><div class="check-label">Foto</div></div>
+            <span class="chevron">›</span>
+        </div>
+    </div>
+
+    <div class="month-label">Oktober</div>
+
+    <div class="week-row">
+        <div class="wk-info"><span class="wk-num">Week 43</span><div class="wk-range">Oct 26–Nov 1</div></div>
+        <div class="check-group">
+            <div class="check-item"><div class="check-dot done weight">✓</div><div class="check-label">Vikt</div></div>
+            <div class="check-item"><div class="check-dot done steps">✓</div><div class="check-label">Steg</div></div>
+            <div class="check-item"><div class="check-dot done neutral">✓</div><div class="check-label">Mått</div></div>
+            <div class="check-item"><div class="check-dot done neutral">✓</div><div class="check-label">Foto</div></div>
+            <span class="chevron">›</span>
+        </div>
+    </div>
+
+    <div class="week-row">
+        <div class="wk-info"><span class="wk-num">Week 42</span><div class="wk-range">Oct 19–25</div></div>
+        <div class="check-group">
+            <div class="check-item"><div class="check-dot done weight">✓</div><div class="check-label">Vikt</div></div>
+            <div class="check-item"><div class="check-dot">·</div><div class="check-label">Steg</div></div>
+            <div class="check-item"><div class="check-dot">·</div><div class="check-label">Mått</div></div>
+            <div class="check-item"><div class="check-dot">·</div><div class="check-label">Foto</div></div>
+            <span class="chevron">›</span>
+        </div>
+    </div>
+
+    <div class="nav-wrap">
+        <div class="fab-float">+</div>
+        <div class="bottom-nav">
+            <div class="nav-item"><span class="nav-icon">◈</span>Overview</div>
+            <div class="nav-item active"><span class="nav-icon">▦</span>Calendar</div>
+            <div class="nav-item"><span class="nav-icon">∿</span>Graph</div>
+            <div class="nav-item"><span class="nav-icon">▢</span>Photos</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const profileBtn = document.getElementById('profileBtn');
+    const profileMenu = document.getElementById('profileMenu');
+    profileBtn.addEventListener('click', function (e) { e.stopPropagation(); profileMenu.classList.toggle('open'); });
+    document.addEventListener('click', function () { profileMenu.classList.remove('open'); });
+    profileMenu.addEventListener('click', function (e) { e.stopPropagation(); });
+    document.querySelector('.login-btn').addEventListener('click', function () {
+        document.getElementById('loggedOutView').style.display = 'none';
+        document.getElementById('loggedInView').style.display = 'block';
+    });
+    document.getElementById('logoutBtn').addEventListener('click', function () {
+        document.getElementById('loggedOutView').style.display = 'block';
+        document.getElementById('loggedInView').style.display = 'none';
+        profileMenu.classList.remove('open');
+    });
+</script>
+
+</body>
+</html>
