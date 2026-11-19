@@ -5,6 +5,10 @@ Updates and changes done to the code.
 ## [Unreleased]
 
 ### Added
+- Links to the app showed no image or description when shared on LinkedIn and in chats.
+  Solved: added link-preview (Open Graph) tags and a preview image.
+  Files: `public/index.html`, `public/og-image.png`
+  Added: 2026-11-19
 - The project had no README, so visitors couldn't tell what it was or how to run it.
   Solved: added a README with the background, features, tech stack and setup steps.
   File: `README.md`
