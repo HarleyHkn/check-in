@@ -7,8 +7,8 @@
 <style>
     * { box-sizing: border-box; }
 
-    /* ---- FÄRGSYSTEM v2: korall, inte orange/röd-orange - se REDESIGN-PLAN.md.
-       Alla färger i den här filen kommer härifrån, inga andra hex-värden. ---- */
+    /* ---- COLOR SYSTEM: coral, not orange/red-orange.
+       All colors in this file come from here, no other hex values. ---- */
     :root {
         --bg-page: #060609;
         --bg-card: #15131D;
@@ -83,8 +83,7 @@
 
     /* ---- hero card: biggest element on the page, everything else supports it.
        Warm dark-red glow radiating from one corner, fading into the plain
-       card color by ~60% - per feedback, a full top-to-bottom tint covering
-       the whole card read as "cloudy", this should only cover part of it. ---- */
+       card color by ~60% (a full top-to-bottom tint looks cloudy). ---- */
     .hero-card {
         background: radial-gradient(120% 140% at 15% 0%, var(--hero-grad-top), var(--bg-card) 60%);
         border-radius: 20px;
@@ -153,7 +152,7 @@
         margin-top: 4px;
     }
     .mini-card.steps .sub-delta.sub-delta-pill { background: var(--positive-bg); color: var(--positive); }
-    /* Per feedback, Streak's pill is green too, same as Steps - not coral. */
+    /* Streak's pill is green too, same as Steps - not coral. */
     .mini-card.neutral .sub-delta.sub-delta-pill { background: var(--positive-bg); color: var(--positive); }
 
     /* ---- measurements: horizontal progress-bar list, "before -> now" motif ---- */
@@ -172,7 +171,7 @@
     .measure-row:last-child { margin-bottom: 0; }
     .measure-top { display: flex; justify-content: space-between; font-size: 0.72rem; margin-bottom: 7px; }
     .measure-top .m-name { color: #cfc9e6; font-weight: 600; }
-    /* Lighter than the main accent per feedback - uses --accent-light, same
+    /* Lighter than the main accent - uses --accent-light, same
        shade as the graph lines, instead of the deeper --accent. */
     .measure-top .m-delta { color: var(--accent-light); font-weight: 700; }
 
@@ -329,7 +328,7 @@
             <button class="login-btn" id="openBannerBtn">Log in</button>
         </div>
         <div class="logged-in-view" id="loggedInView">
-            <div class="username">Harley</div>
+            <div class="username">Alex</div>
             <div class="username-sub">Logged in</div>
             <button class="logout-btn" id="logoutBtn">Log out</button>
         </div>

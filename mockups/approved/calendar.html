@@ -7,8 +7,8 @@
 <style>
     * { box-sizing: border-box; }
 
-    /* ---- FÄRGSYSTEM v2: korall, inte orange/röd-orange - se REDESIGN-PLAN.md.
-       Alla färger i den här filen kommer härifrån, inga andra hex-värden. ---- */
+    /* ---- COLOR SYSTEM: coral, not orange/red-orange.
+       All colors in this file come from here, no other hex values. ---- */
     :root {
         --bg-page: #060609;
         --bg-card: #15131D;
@@ -118,7 +118,7 @@
         background: rgba(255,255,255,0.05); color: #4a4560;
     }
     /* Every filled chip is coral, regardless of type - no gray checkmarks.
-       Same coral-to-red gradient as the Save button/FAB, per feedback. */
+       Same coral-to-red gradient as the Save button/FAB. */
     .check-dot.done { background: linear-gradient(135deg, var(--accent) 0%, var(--accent) 50%, var(--accent-red) 100%); color: #fff; }
     .check-label { font-size: 0.5rem; color: var(--text-dim); text-transform: uppercase; }
 
@@ -157,7 +157,7 @@
             <button class="login-btn">Log in</button>
         </div>
         <div class="logged-in-view" id="loggedInView">
-            <div class="username">Harley</div>
+            <div class="username">Alex</div>
             <div class="username-sub">Logged in</div>
             <button class="logout-btn" id="logoutBtn">Log out</button>
         </div>
