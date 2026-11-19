@@ -1,0 +1,65 @@
+/* ---- save button: solid coral fading to a redder tone from the middle ---- */
+.save-button {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(90deg, var(--accent) 0%, var(--accent) 50%, var(--accent-red) 100%);
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-top: 6px;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+/* ---- confirm guard: editing a PAST week's already-saved data (via Calendar)
+   is riskier than a fresh check-in, so it gets an extra "are you sure" before
+   anything actually saves. See js/checkin-page.js. ---- */
+.confirm-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+}
+.confirm-overlay.open {
+    display: flex;
+}
+.confirm-box {
+    width: 280px;
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+}
+.confirm-box p {
+    font-size: 0.82rem;
+    color: #cfc9e6;
+    line-height: 1.5;
+    margin: 0 0 16px;
+}
+.confirm-buttons {
+    display: flex;
+    gap: 8px;
+}
+.confirm-buttons button {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
+    border: none;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+}
+.confirm-cancel {
+    background: rgba(255, 255, 255, 0.06);
+    color: #cfc9e6;
+}
+.confirm-yes {
+    background: var(--accent);
+    color: #fff;
+}

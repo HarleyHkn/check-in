@@ -3,7 +3,7 @@
 A web app for tracking your body week by week: weight, average steps,
 body measurements and progress photos, all in one weekly check-in.
 
-![Check In walkthrough](docs/check-in-demo.gif)
+<img src="docs/screenshots/overview.png" alt="Check In overview page" width="320">
 
 > **Live demo:** [link added at launch]
 > Hosted on a free plan, so the first load can take up to a minute.
@@ -48,12 +48,15 @@ I chose PostgreSQL because I had taken a database course and SQL felt
 familiar. Vanilla JavaScript and Express kept things as simple as possible,
 and Neon and Render are free, so the project costs nothing to run.
 
-## What I learned
+## Lessons learned
 
-After a few months' break I picked the project back up and focused on using
-AI effectively, not just letting it write code: I set up rules for how it
-should work (`CLAUDE.md`) and a changelog that records each fix
-(`CHANGELOG.md`).
+Check In started as a learning project: a way to understand how the parts of
+a web app fit together. After the first version it was on hold for a few
+months. When I came back to it, the goal changed. I redesigned the app around
+how I actually use it week to week, and focused on making the project usable
+and well structured: clear working rules (`CLAUDE.md`), a changelog that
+records each fix (`CHANGELOG.md`), and a cleaned-up repo that others can read
+and run.
 
 If I started again, I would make more of the technical decisions myself,
 commit after every finished step, and write tests from the start.
@@ -89,7 +92,8 @@ Open http://localhost:3000.
 
 - Security improvements: keep logins across server restarts, safer cookie
   settings, limits on login attempts and password requirements
-- Tests
+- Tests users
 - Require an email address when creating an account
+
 
 Changes are logged in `CHANGELOG.md`.

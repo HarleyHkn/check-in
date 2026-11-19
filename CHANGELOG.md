@@ -13,12 +13,24 @@ Updates and changes done to the code.
   Solved: added an example settings file without real values.
   File: `.env.example`
   Added: 2026-11-18
+- The README pointed to a demo image that didn't exist yet.
+  Solved: added a screenshot of the Overview page, using the built-in demo data.
+  File: `docs/screenshots/overview.png`
+  Added: 2026-11-19
 
 ### Changed
 - `npm install` could fail on older Node versions, and the project had no name or description.
   Solved: added a name, version, description and a Node 20+ requirement.
   File: `package.json`
   Changed: 2026-11-18
+- The Check-in stylesheet was 408 lines, over the project's 300-line limit.
+  Solved: moved the photo row and the save button into their own files. Nothing looks different.
+  Files: `public/css/checkin.css`, `public/css/checkin-photo.css`, `public/css/checkin-save.css`, `public/index.html`
+  Changed: 2026-11-19
+- The lock file still had the project's old name.
+  Solved: updated it to match `package.json`.
+  File: `package-lock.json`
+  Changed: 2026-11-19
 
 ### Fixed
 - Overview showed "No data" when the app opened, until you switched tabs.
