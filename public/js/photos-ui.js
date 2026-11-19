@@ -4,6 +4,7 @@
 // into a JS array.
 
 import { toDateKey } from './date-utils.js';
+import { generateDemoPhotoList, demoPhotoForAngle } from './demo-data.js';
 
 export let photoList = [];   // [{date, angle}, ...] - metadata only, no image bytes
 
@@ -11,7 +12,7 @@ export let photoList = [];   // [{date, angle}, ...] - metadata only, no image b
 export async function loadPhotoList() {
     const response = await fetch('/api/photos');
     if (!response.ok) {
-        photoList = [];
+        photoList = generateDemoPhotoList();   // not logged in - show demo entries instead of an empty page
         return;
     }
     const rows = await response.json();
@@ -23,7 +24,7 @@ export async function loadPhotoList() {
 // Called by auth-ui.js's logout() - see weights-ui.js's resetWeightLog for why
 // this small function exists instead of the caller just reassigning photoList.
 export function resetPhotoList() {
-    photoList = [];
+    photoList = generateDemoPhotoList();   // back to the logged-out demo view, not a blank page
 }
 
 // True if a photo exists for this exact date+angle.
@@ -49,9 +50,20 @@ export function weekHasPhoto(date) {
     return false;
 }
 
-// The URL an <img> tag can use directly to display this photo.
+// The URL an <img> tag can use directly to display this photo. Demo entries
+// (see generateDemoPhotoList in demo-data.js) have no real bytes on the
+// server - that fetch would 401 anyway since this only happens while logged
+// out - so they get the placeholder image instead.
 export function photoUrl(date, angle) {
-    return '/api/photos/' + toDateKey(date) + '/' + angle;
+    const dateKey = toDateKey(date);
+
+    for (let i = 0; i < photoList.length; i++) {
+        if (photoList[i].date === dateKey && photoList[i].angle === angle && photoList[i].demo) {
+            return demoPhotoForAngle(angle);
+        }
+    }
+
+    return '/api/photos/' + dateKey + '/' + angle;
 }
 
 // Uploads (or replaces) a photo, then updates the local metadata list too.

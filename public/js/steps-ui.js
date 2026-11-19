@@ -1,10 +1,8 @@
-// Steps data layer. Entry happens per-day, same as weight - but there's no
-// standalone "Steps" page; daily step counts are entered through the week
-// popup's Steps tab (see week-modal.js), and this file just holds the shared
-// data (stepsLog) and the week-average calculation both the popup and the
-// overview page use.
+// Steps data layer. Mirrors weights-ui.js: holds stepsLog, loads/saves it via
+// /api/steps, and computes week averages. Steps are entered on the Check-in page.
 
 import { toDateKey, sameDay, formatDateKey, getMondayDate } from './date-utils.js';
+import { generateDemoStepsLog } from './demo-data.js';
 
 let stepsLog = [];   // array of [date, steps] pairs, same shape as weightLog
 
@@ -13,7 +11,7 @@ export async function loadStepsLog() {
     const response = await fetch('/api/steps');
 
     if (!response.ok) {
-        stepsLog = [];
+        stepsLog = generateDemoStepsLog();   // not logged in - show demo data instead of an empty page
         return;
     }
 
@@ -26,7 +24,7 @@ export async function loadStepsLog() {
 // Called by auth-ui.js's logout() - see weights-ui.js's resetWeightLog for why
 // this small function exists instead of the caller just reassigning stepsLog.
 export function resetStepsLog() {
-    stepsLog = [];
+    stepsLog = generateDemoStepsLog();   // back to the logged-out demo view, not a blank page
 }
 
 // Finds this array's index for a given date, or -1 if there's no entry yet.

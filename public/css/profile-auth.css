@@ -1,0 +1,194 @@
+/* Global profile icon + dropdown + banner login/signup - shown on every page
+   (the markup lives once in index.html, outside any .page div). */
+
+.profile-bar {
+    position: fixed;
+    top: 14px;
+    right: 14px;
+    z-index: 50;
+}
+
+.profile-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    font-size: 1rem;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+/* Logged-in state is visible without opening the dropdown - ring + small
+   corner dot, both in the brand accent (coral). */
+.profile-btn.logged-in {
+    background: rgba(var(--accent-rgb), 0.4);
+    border-color: var(--accent);
+}
+.profile-btn.logged-in::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    right: -1px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--bg-page);
+}
+
+.profile-menu {
+    display: none;
+    position: absolute;
+    top: 42px;
+    right: 0;
+    width: 190px;
+    background: #1c1a26;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 14px;
+    z-index: 51;
+}
+.profile-menu.open {
+    display: block;
+}
+.profile-menu .logged-out-view p {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin: 0 0 10px;
+}
+.profile-menu button {
+    width: 100%;
+    padding: 9px;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 6px;
+    font-family: inherit;
+}
+.profile-menu .login-btn {
+    background: linear-gradient(90deg, var(--accent) 0%, var(--accent) 50%, var(--accent-red) 100%);
+    color: #fff;
+}
+.profile-menu .logout-btn {
+    background: rgba(255, 255, 255, 0.06);
+    color: #cfc9e6;
+}
+.profile-menu .logged-in-view {
+    display: none;
+}
+.profile-menu .username {
+    font-size: 0.82rem;
+    font-weight: 700;
+    margin-bottom: 2px;
+    color: var(--text-primary);
+}
+.profile-menu .username-sub {
+    font-size: 0.64rem;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+}
+
+/* ---- login/signup "banner roller" - unrolls down from the very top of the
+   screen, like a roller blind, instead of a centered dialog box ---- */
+.banner-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    z-index: 60;
+}
+.banner-overlay.open {
+    display: block;
+}
+
+.banner-sheet {
+    /* left/right/margin:auto centers it horizontally on its own, kept
+       completely separate from the slide-down transform below - doing both
+       jobs (centering AND sliding) in one transform value drifts off-center. */
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    width: 340px;
+    max-width: calc(100vw - 32px);
+    background: #1c1a26;
+    border-radius: 0 0 22px 22px;
+    padding: 26px 22px 22px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    transform: translateY(-100%) scaleY(0.9);
+    transform-origin: top center;
+    transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.banner-overlay.open .banner-sheet {
+    transform: translateY(0) scaleY(1);
+}
+
+.banner-close {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: 1.1rem;
+    cursor: pointer;
+}
+.banner-sheet h3 {
+    margin: 0 0 16px;
+    font-size: 1.05rem;
+    text-align: center;
+    color: var(--text-primary);
+}
+
+.banner-input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 11px 12px;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    margin-bottom: 10px;
+    outline: none;
+    font-family: inherit;
+}
+.banner-error {
+    color: #e2b93b;
+    font-size: 0.78rem;
+    text-align: center;
+    margin: 0 0 8px;
+}
+.banner-submit {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(90deg, var(--accent) 0%, var(--accent) 50%, var(--accent-red) 100%);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.88rem;
+    cursor: pointer;
+    margin-top: 4px;
+    font-family: inherit;
+}
+.banner-switch-link {
+    display: block;
+    text-align: center;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-top: 14px;
+    cursor: pointer;
+}
+.banner-switch-link b {
+    color: var(--accent);
+    font-weight: 700;
+}

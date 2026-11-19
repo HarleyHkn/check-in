@@ -1,6 +1,7 @@
 // Weight data layer. Mirrors steps-ui.js.
 
 import { toDateKey, sameDay, formatDateKey, getMondayDate } from './date-utils.js';
+import { generateDemoWeightLog } from './demo-data.js';
 
 let weightLog = [];   // array of [date, weight] pairs
 
@@ -9,7 +10,7 @@ export async function loadWeightLog() {
     const response = await fetch('/api/weights');
 
     if (!response.ok) {
-        weightLog = [];                  // not logged in (or an error) - nothing to show
+        weightLog = generateDemoWeightLog();   // not logged in - show demo data instead of an empty page
         return;
     }
 
@@ -23,7 +24,7 @@ export async function loadWeightLog() {
 // file (only this file, the one that exports it, is allowed to do that), so
 // this small function exists to let other files ask for the reset.
 export function resetWeightLog() {
-    weightLog = [];
+    weightLog = generateDemoWeightLog();   // back to the logged-out demo view, not a blank page
 }
 
 // Finds this array's index for a given date, or -1 if there's no entry yet.

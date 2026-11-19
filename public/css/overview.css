@@ -1,209 +1,121 @@
-/* Overview page: week selector, the trend charts, and the SVG chart styles
-   used by trend-chart.js (buildTrendChart / buildMultiTrendChart). */
+/* Overview page. Uses the shared color variables from coral-theme.css
+   (loaded earlier in index.html), not its own hardcoded colors. */
 
-.overview-panel {
-    margin-bottom: 16px;
+/* ---- hero card: biggest element on the page, everything else supports it.
+   Warm dark-red glow radiating from one corner, fading into the plain card
+   color by ~60% (a full top-to-bottom tint looks cloudy). ---- */
+.hero-card {
+    background: radial-gradient(120% 140% at 15% 0%, var(--hero-grad-top), var(--bg-card) 85%);
+    border-radius: 20px;
+    padding: 22px 20px 16px;
+    margin-bottom: 14px;
+    width: 100%;
+    max-width: 340px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-.week-selector {
+.hero-top { display: flex; justify-content: space-between; align-items: flex-start; }
+.hero-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); }
+.hero-value { font-size: 2.6rem; font-weight: 800; margin: 4px 0 0; font-variant-numeric: tabular-nums; }
+.hero-unit { font-size: 1.1rem; font-weight: 500; color: var(--text-muted); margin-left: 4px; }
+
+/* A weight/steps change is always framed as "positive" (green), same semantic
+   color regardless of direction - per the coral color spec. */
+.delta-pill {
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: var(--positive-bg);
+    color: var(--positive);
+    white-space: nowrap;
+}
+
+.hero-chart { width: 100%; height: 90px; margin-top: 10px; }
+.hero-chart-svg { width: 100%; height: 100%; display: block; }
+
+/* ---- secondary row: smaller, supporting cards ---- */
+.secondary-row {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+    width: 100%;
+    max-width: 340px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-.week-selector button {
-    width: 30px;
-    height: 30px;
-    color: #cecccc;
-    background: rgba(255, 255, 255, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    border-radius: 6px;
-    font-size: 14px;
-    cursor: pointer;
+/* Flat card color, not an accent wash: tinting every card makes the page feel
+   cloudy. Only the hero card (above) gets a tint. */
+.mini-card {
+    flex: 1;
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 14px;
 }
 
-.week-selector button:hover {
-    background: rgba(255, 255, 255, 0.3);
-}
-
-.week-label {
-    text-align: center;
-    font-size: 0.95rem;
-}
-
-.week-label .range {
-    display: block;
-    font-size: 0.7rem;
-    font-weight: normal;
-    color: #cecccc;
-    margin-top: 2px;
-}
-
-.chart-title {
-    font-size: 0.8rem;
-    font-weight: bold;
-    margin: 0 0 8px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.chart-title .swatch {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    display: inline-block;
-}
-
-.chart-title .swatch.weight {
-    background: #3987e5;
-}
-
-.chart-title .swatch.steps {
-    background: #d95926;
-}
-
-.chart-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
+/* Streak matches the same coral accent as Steps - no more neutral gray badge. */
+.mini-card .icon-badge {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(var(--accent-rgb), 0.18);
+    color: var(--accent);
     margin-bottom: 8px;
 }
+.mini-card .icon-badge svg { width: 15px; height: 15px; }
 
-.chart-title-text {
-    font-size: 0.8rem;
-    font-weight: bold;
-}
+.mini-card .label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.mini-card .value { font-size: 1.3rem; font-weight: 700; margin-top: 2px; }
 
-.measurement-select {
-    /* Solid, not translucent - the OPEN dropdown list is drawn by the browser/OS,
-       not this page, so it mostly ignores rgba transparency and backdrop-filter.
-       This at least keeps it dark/on-theme instead of a plain white popup. */
-    background: #1b2430;
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    border-radius: 6px;
-    padding: 4px 6px;
-    color: #dde3e4;
-    font-family: inherit;
-    font-size: 0.7rem;
-    font-weight: bold;
-    cursor: pointer;
-}
+/* This base font-size was missing entirely, so the pill below inherited
+   body's 16px instead of its intended small size - that's what made "up 420
+   vs last week"/"check-ins in a row" look oversized for the card. */
+.mini-card .sub-delta { font-size: 0.65rem; margin-top: 2px; }
 
-.measurement-select option {
-    background: #1b2430; /* Firefox honors this for the open list; Chrome/Edge mostly don't */
-    color: #dde3e4;
-}
-
-.trend-empty {
-    font-size: 0.8rem;
-    font-weight: normal;
-    color: #cecccc;
-    text-align: center;
-    margin: 20px 0;
-}
-
-.trend-legend {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 10px;
-}
-
-.trend-legend-item {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 0.65rem;
-    font-weight: normal;
-    color: #cecccc;
-}
-
-.trend-legend-swatch {
-    width: 9px;
-    height: 9px;
-    border-radius: 50%;
+/* Steps' and Streak's sub-text are both "positive change" pills (green), same
+   --positive-bg/--positive pair as the hero's delta-pill. */
+.mini-card .sub-delta.sub-delta-pill {
     display: inline-block;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 999px;
+    margin-top: 4px;
+    background: var(--positive-bg);
+    color: var(--positive);
 }
 
-.chart-wrap {
-    position: relative;
-}
-
-.trend-svg {
+/* ---- measurements: "before -> now" dot track, direction-neutral ---- */
+.section-card {
+    background: var(--bg-card);
+    border-radius: 18px;
+    padding: 16px 18px 18px;
+    margin-bottom: 14px;
     width: 100%;
-    height: 120px;
-    overflow: visible;
+    max-width: 340px;
+    margin-left: auto;
+    margin-right: auto;
 }
+.section-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.section-title { font-size: 0.82rem; font-weight: 700; color: var(--text-primary); }
+.section-select { font-size: 0.68rem; color: var(--text-muted); background: transparent; border: none; }
 
-.trend-gridline {
-    stroke: rgba(255, 255, 255, 0.12);
-    stroke-width: 1;
-}
+/* No fill-bar here on purpose - a fill implies "more filled = better", which
+   only makes sense if the goal is always to shrink the number. Instead: two
+   dots (start vs now) on a plain track, direction-neutral. A measurement
+   change is always coral here, never green/red, regardless of direction. */
+.measure-row { margin-bottom: 16px; }
+.measure-row:last-child { margin-bottom: 0; }
+.measure-top { display: flex; justify-content: space-between; font-size: 0.72rem; margin-bottom: 7px; }
+.measure-top .m-name { color: #cfc9e6; font-weight: 600; }
+.measure-top .m-delta { color: var(--accent-light); font-weight: 700; }
 
-.trend-axislabel {
-    fill: #8f9aa3;
-    font-size: 8px;
-    font-weight: normal;
-    font-family: inherit;
-}
+.measure-track { height: 2px; border-radius: 999px; background: rgba(255,255,255,0.08); position: relative; margin: 10px 0 4px; }
+.measure-dot { position: absolute; top: 50%; width: 9px; height: 9px; border-radius: 50%; transform: translate(-50%, -50%); }
+.measure-dot.start { background: #5a5570; }
+.measure-dot.now { background: var(--accent-light); box-shadow: 0 0 8px rgba(var(--accent-light-rgb), 0.7); }
+.measure-connector { position: absolute; top: 50%; height: 2px; background: rgba(var(--accent-light-rgb), 0.5); transform: translateY(-50%); }
 
-.trend-line {
-    fill: none;
-    stroke-width: 2;
-}
+.measure-labels { display: flex; justify-content: space-between; font-size: 0.6rem; color: var(--text-dim); }
 
-.trend-line.weight {
-    stroke: #3987e5;
-}
-
-.trend-line.steps {
-    stroke: #d95926;
-}
-
-.trend-dot {
-    r: 3;
-}
-
-.trend-dot.weight {
-    fill: #3987e5;
-}
-
-.trend-dot.steps {
-    fill: #d95926;
-}
-
-.trend-dot.last {
-    r: 4.5;
-    stroke: #0d1117;
-    stroke-width: 2;
-}
-
-.trend-hit-area {
-    fill: transparent;
-    cursor: pointer;
-}
-
-.trend-crosshair {
-    stroke: rgba(255, 255, 255, 0.12);
-    stroke-width: 1;
-    stroke-dasharray: 2 2;
-    display: none;
-}
-
-.trend-tooltip {
-    position: absolute;
-    pointer-events: none;
-    background: rgba(15, 20, 28, 0.92);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    border-radius: 6px;
-    padding: 4px 8px;
-    font-size: 0.7rem;
-    font-weight: normal;
-    color: #dde3e4;
-    white-space: nowrap;
-    display: none;
-    transform: translate(-50%, -130%);
-}
+.overview-empty-text { font-size: 0.8rem; color: var(--text-muted); text-align: center; margin: 10px 0; }

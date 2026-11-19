@@ -1,0 +1,126 @@
+/* Graph page: the Weight/
+   Steps toggle and the pan-to-scroll trend chart card. Uses the shared color
+   variables from coral-theme.css. */
+
+.metric-toggle {
+    display: flex;
+    gap: 6px;
+    width: 100%;
+    max-width: 340px;
+    margin: 0 auto 16px;
+}
+.metric-toggle button {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border: none;
+    border-radius: 999px;
+    padding: 8px 0;
+    color: var(--text-muted);
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+.metric-toggle button.active {
+    background: linear-gradient(90deg, var(--accent) 0%, var(--accent) 50%, var(--accent-red) 100%);
+    color: #fff;
+}
+
+/* Same warm dark-red corner-glow as the Overview hero card. Falloff pushed
+   out to 85% (was 60%) - at 60% the blank "no future data" area on the right
+   side of the chart sat past the glow entirely, over plain near-black
+   --bg-card, which read as a flat black patch rather than part of the same
+   warm card. */
+.chart-card {
+    background: radial-gradient(120% 140% at 15% 0%, var(--hero-grad-top), var(--bg-card) 85%);
+    border-radius: 20px;
+    padding: 20px 14px 10px;
+    margin-bottom: 14px;
+    width: 100%;
+    max-width: 340px;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+}
+
+/* faint year label, centered above everything else - only reason it's there
+   at all is to make a year-boundary crossing legible while panning */
+.year-tag {
+    text-align: center;
+    font-size: 0.68rem;
+    color: #4a4560;
+    letter-spacing: 0.06em;
+    margin-bottom: 2px;
+}
+
+.chart-headline {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 0 6px;
+    margin-bottom: 4px;
+}
+.chart-headline .big {
+    font-size: 1.8rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-primary);
+}
+.chart-headline .unit {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-left: 3px;
+}
+.chart-headline .wk-tag {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+}
+
+.graph-empty-text {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    text-align: center;
+    margin: 30px 0;
+}
+
+/* overflow hidden so the curve/dots don't visibly poke out past the rounded
+   card edges while panning - the SVG viewBox still clips too */
+.chart-wrap {
+    position: relative;
+    touch-action: pan-y;
+    cursor: grab;
+    overflow: hidden;
+    border-radius: 10px;
+    user-select: none;
+}
+.chart-wrap.dragging {
+    cursor: grabbing;
+}
+.chart-wrap svg {
+    width: 100%;
+    height: 160px;
+    display: block;
+}
+
+/* The gradient fade, the line's stroke, and the one marked point's fill are
+   all set directly in graph-chart.js (as SVG presentation attributes, not
+   CSS classes here) - see that file's readCoralColor() for why. */
+
+.x-labels {
+    display: flex;
+    justify-content: space-between;
+    padding: 2px 6px 10px;
+    font-size: 0.62rem;
+    color: var(--text-dim);
+}
+.x-labels span.active {
+    color: var(--text-primary);
+    font-weight: 700;
+}
+
+.graph-hint {
+    text-align: center;
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    margin-top: -4px;
+}

@@ -1,174 +1,211 @@
-/* Photos page: filter pills, week cards, and the Front/Back/Side angle slots.
-   .photo-week-card-head and the --cols variable on .photo-angle-row are also
-   reused by the Weekly page (weekly.css) - keep changes here in mind for that
-   page too. */
+/* Photos page: the drag-to-browse 3D carousel, the Compare toggle, and the Compare view.
+   Uses the shared color variables from coral-theme.css. */
 
-.photo-filter-bar {
+.compare-toggle-row {
     display: flex;
     justify-content: center;
-    gap: 6px;
     width: 100%;
-    max-width: 340px;
-    margin: 0 auto 16px;
+    max-width: 420px;
+    margin: 0 auto 14px;
 }
 
-.photo-filter-button {
-    flex: 1 1 0;
-    background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    border-radius: 999px;
-    padding: 7px 0;
-    color: #cecccc;
-    font-family: inherit;
-    font-weight: bold;
-    font-size: 0.75rem;
-    cursor: pointer;
-}
-
-.photo-filter-button:hover {
-    color: #ffffff;
-}
-
-.photo-filter-button.active {
-    background: rgba(255, 255, 255, 0.22);
-    color: #ffffff;
-}
-
-.photo-week-list {
+.compare-toggle {
     display: flex;
-    flex-direction: column;
-    gap: 14px;
-    width: 100%;
-    max-width: 340px;
-    margin: 0 auto;
-}
-
-.photo-week-card {
-    background: rgba(255, 255, 255, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    padding: 12px 12px 14px;
-}
-
-/* The current week's card - same neon-purple treatment as a fully-complete
-   week on the calendar (.has-full-entry), so "this is the latest one" reads
-   the same way it does everywhere else in the app. */
-.photo-week-card.is-latest {
-    border-color: rgba(179, 102, 217, 0.6);
-    box-shadow: 0 0 10px rgba(179, 102, 217, 0.25);
-}
-
-.photo-week-card-head {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    margin-bottom: 10px;
-    font-size: 0.85rem;
-}
-
-.photo-latest-tag {
-    font-size: 0.6rem;
-    font-weight: bold;
-    color: rgba(179, 102, 217, 0.9);
-    margin-left: 6px;
-    vertical-align: middle;
-}
-
-.photo-week-range {
-    font-size: 0.66rem;
-    font-weight: normal;
-    color: #8f9aa3;
-}
-
-.photo-angle-row {
-    display: grid;
-    grid-template-columns: repeat(var(--cols, 3), 1fr);
+    align-items: center;
     gap: 8px;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    user-select: none;
 }
 
-.photo-angle-box {
+.switch {
+    width: 36px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 999px;
+    position: relative;
+    transition: background 0.2s;
+}
+.switch.on {
+    background: rgba(var(--accent-rgb), 0.5);
+}
+.switch .knob {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    transition: left 0.2s;
+}
+.switch.on .knob {
+    left: 18px;
+}
+
+/* ---------------- Carousel (default view) ---------------- */
+.carousel-wrap {
+    width: 100%;
+    max-width: 420px;
+    height: 380px;
+    margin: 0 auto;
+    position: relative;
+    perspective: 1100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: pan-y;
+    cursor: grab;
+    user-select: none;
+}
+.carousel-wrap.dragging {
+    cursor: grabbing;
+}
+
+.carousel-card {
+    position: absolute;
+    width: 190px;
+    height: 254px;
+    border-radius: 14px;
+    background: var(--bg-raised);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
+
+    /* mirror-image reflection fading into the "ground" below the card -
+       classic CoverFlow trick, makes the carousel feel more alive */
+    -webkit-box-reflect: below 6px linear-gradient(to bottom, transparent, transparent 55%, rgba(255, 255, 255, 0.14));
 }
 
-.photo-angle-box.is-hidden {
-    display: none;
-}
-
-.photo-angle-label {
-    font-size: 0.6rem;
-    font-weight: bold;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: #8f9aa3;
-}
-
-.photo-slot {
-    position: relative;
+.carousel-card img {
     width: 100%;
-    aspect-ratio: 3 / 4;
-    border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    overflow: hidden;
-    cursor: pointer;
-    background: rgba(0, 0, 0, 0.18);
-}
-
-.photo-slot img {
-    width: 100%;
-    height: 100%;
+    flex: 1;
+    min-height: 0; /* flex items default to min-height:auto, which for an <img> resolves to its full
+                      intrinsic aspect-ratio height (~253px for a 190px-wide 3:4 image) - that's what was
+                      squeezing .card-foot down to nothing below it, since the image refused to shrink */
     object-fit: cover;
     display: block;
+    -webkit-user-drag: none; /* stops a mouse drag from starting the browser's native "drag this image" ghost */
 }
 
-.photo-slot.empty {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(255, 255, 255, 0.06);
-    border-style: dashed;
-}
-
-.photo-slot.empty:hover {
-    background: rgba(255, 255, 255, 0.12);
-    border-color: rgba(255, 255, 255, 0.6);
-}
-
-.photo-plus {
-    font-size: 1.4rem;
-    font-weight: bold;
-    color: #cecccc;
-    line-height: 1;
-}
-
-.photo-remove-button {
+.carousel-remove-button {
     position: absolute;
-    top: 4px;
-    right: 4px;
-    width: 20px;
-    height: 20px;
+    top: 6px;
+    right: 6px;
+    width: 22px;
+    height: 22px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(0, 0, 0, 0.55);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    border-radius: 6px;
-    color: #cecccc;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 50%;
+    color: var(--text-primary);
     font-size: 0.65rem;
     cursor: pointer;
 }
-
-.photo-remove-button:hover {
-    color: #ffd9d0;
-    background: rgba(226, 90, 59, 0.5);
-    border-color: rgba(226, 90, 59, 0.7);
+.carousel-remove-button:hover {
+    background: rgba(var(--accent-rgb), 0.6);
+    border-color: var(--accent);
 }
 
-.photo-slot input[type="file"] {
+.card-foot {
+    width: 100%;
+    padding: 8px;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.25);
+}
+.card-foot .wk {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+.card-foot .range {
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+}
+
+.angle-pills {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+}
+.angle-pill {
+    font-size: 0.56rem;
+    padding: 3px 7px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+    color: #777d95;
+    cursor: pointer;
+}
+.angle-pill.active {
+    background: rgba(var(--accent-rgb), 0.35);
+    color: #fff;
+}
+.angle-pill.unavailable {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.carousel-hint {
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    margin-top: 10px;
+    text-align: center;
+}
+
+/* ---------------- Compare view ---------------- */
+.compare-wrap {
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
     display: none;
+    flex-direction: column;
+    align-items: center;
+}
+.compare-wrap.visible {
+    display: flex;
+}
+
+.compare-row {
+    display: flex;
+    gap: 14px;
+}
+
+.compare-card {
+    width: 170px;
+    background: var(--bg-raised);
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.compare-card img {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    display: block;
+}
+.compare-card .tag {
+    text-align: center;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+}
+.compare-card .range {
+    text-align: center;
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    padding: 4px 0 8px;
+}
+
+.shared-pills {
+    display: flex;
+    gap: 6px;
+    margin-top: 14px;
 }

@@ -1,0 +1,408 @@
+/* The Check-in page: Weight hero input, Steps, Measurements grid, Photo row,
+   progress chips, and the gradient Save button. */
+
+#checkinPage {
+    width: 100%;
+    max-width: 360px;
+}
+
+#checkinBody {
+    width: 100%;
+    overflow: hidden; /* clips the week-pager's prev/next preview panels until they're dragged into view */
+}
+
+/* ---- week-pager (Calendar-opened only) - see js/checkin-pager.js. The track
+   holds [prev preview, live current, next preview?] and gets dragged; each
+   panel is the viewport's full width with a visible gap between them so it
+   reads as "you're between two pages", same carousel feel as Photos. ---- */
+.checkin-week-track {
+    display: flex;
+    gap: 16px; /* must match PANEL_GAP in checkin-pager.js */
+}
+.checkin-week-panel {
+    flex: 0 0 100%;
+    width: 100%;
+    box-sizing: border-box;
+}
+.checkin-week-panel.is-preview {
+    opacity: 0.45;
+    pointer-events: none; /* these are disposable previews, not real editable forms - see checkin-pager.js */
+}
+
+/* Close-without-saving link, so the page can be left without saving. Sits BELOW the Save/Update button (not above it) so it
+   can't be tapped by mistake before the primary action. */
+.checkin-close-btn {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    text-align: center;
+    cursor: pointer;
+    padding: 6px;
+    font-family: inherit;
+}
+.checkin-close-btn:hover {
+    color: var(--text-primary);
+}
+
+/* ---- header: week label + 4 progress chips, same check-dot idea as Calendar ---- */
+.checkin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+}
+.checkin-header .wk {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+.checkin-header .range {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+.progress-chips {
+    display: flex;
+    gap: 6px;
+}
+.chip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+}
+.chip-dot {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    color: #4a4560;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.68rem;
+    font-weight: 700;
+}
+/* Every chip lights up coral once filled in, regardless of type. */
+.chip-dot.done {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent) 50%, var(--accent-red) 100%);
+    color: #fff;
+}
+.chip-label {
+    font-size: 0.52rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+}
+
+/* ---- shared section card - flat card color, no accent wash ---- */
+.section-card {
+    background: var(--bg-card);
+    border-radius: 18px;
+    padding: 18px;
+    margin-bottom: 12px;
+}
+.section-label {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+}
+
+/* ---- weight: hero-style centered input ---- */
+.hero-input-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 8px;
+}
+.hero-input {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-size: 2.6rem;
+    font-weight: 800;
+    width: 140px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    outline: none;
+    font-family: inherit;
+}
+.hero-input::-webkit-outer-spin-button,
+.hero-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.hero-input {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+.hero-unit {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+}
+.hero-sub {
+    text-align: center;
+    font-size: 0.68rem;
+    color: var(--positive);
+    margin-top: 4px;
+}
+
+/* ---- steps: simpler input + future auto-sync note ---- */
+.steps-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 8px;
+}
+.steps-input {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-size: 1.8rem;
+    font-weight: 800;
+    width: 120px;
+    text-align: right;
+    outline: none;
+    font-family: inherit;
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+.steps-input::-webkit-outer-spin-button,
+.steps-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.autosync-note {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 0.64rem;
+    color: var(--text-dim);
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 999px;
+    padding: 6px 10px;
+}
+.autosync-note .switch-mini {
+    width: 24px;
+    height: 14px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.1);
+    position: relative;
+}
+.autosync-note .switch-mini .knob-mini {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--text-dim);
+}
+
+/* ---- measurements: compact 2-col grid, not a wall of inputs ---- */
+.measure-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+.measure-field {
+    background: var(--bg-raised);
+    border-radius: 10px;
+    padding: 8px 10px;
+}
+.measure-field-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 4px;
+}
+.measure-field label {
+    display: block;
+    font-size: 0.62rem;
+    color: var(--text-muted);
+    margin-bottom: 3px;
+}
+.measure-remove-button {
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    font-size: 0.6rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+}
+.measure-remove-button:hover {
+    color: var(--accent-light);
+}
+.add-custom-measure-button {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+    background: transparent;
+    border: 1px dashed rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    padding: 8px 0;
+    color: var(--text-muted);
+    font-family: inherit;
+    font-size: 0.72rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+.add-custom-measure-button:hover {
+    border-color: rgba(255, 255, 255, 0.5);
+    color: var(--text-primary);
+}
+.measure-field .field-row {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+}
+.measure-field input {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-weight: 700;
+    width: 100%;
+    outline: none;
+    font-family: inherit;
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+.measure-field input::-webkit-outer-spin-button,
+.measure-field input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.measure-field .unit {
+    font-size: 0.62rem;
+    color: var(--text-dim);
+}
+
+/* ---- photo: always exactly 3 equal-width boxes (Front/Side/Back), each
+   either a filled photo or an "+ Add" card - never a lopsided mix of a
+   fixed-width card next to a full-width ghost column. ---- */
+.photo-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+.photo-card {
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--bg-raised);
+}
+.photo-card img {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    display: block;
+}
+.photo-card .tag {
+    text-align: center;
+    font-size: 0.6rem;
+    font-weight: 700;
+    padding: 5px;
+    color: var(--text-primary);
+}
+
+.add-angle-card {
+    aspect-ratio: 3 / 4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border: 1px dashed rgba(255, 255, 255, 0.15);
+    cursor: pointer;
+}
+.add-angle-card:hover {
+    border-color: rgba(255, 255, 255, 0.5);
+}
+.add-angle-card .tag {
+    color: var(--text-muted);
+}
+.add-angle-card:hover .tag {
+    color: var(--text-primary);
+}
+.add-angle-plus {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+.add-angle-card:hover .add-angle-plus {
+    color: var(--text-primary);
+}
+
+/* ---- save button: solid coral fading to a redder tone from the middle ---- */
+.save-button {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(90deg, var(--accent) 0%, var(--accent) 50%, var(--accent-red) 100%);
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-top: 6px;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+/* ---- confirm guard: editing a PAST week's already-saved data (via Calendar)
+   is riskier than a fresh check-in, so it gets an extra "are you sure" before
+   anything actually saves. See js/checkin-page.js. ---- */
+.confirm-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+}
+.confirm-overlay.open {
+    display: flex;
+}
+.confirm-box {
+    width: 280px;
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+}
+.confirm-box p {
+    font-size: 0.82rem;
+    color: #cfc9e6;
+    line-height: 1.5;
+    margin: 0 0 16px;
+}
+.confirm-buttons {
+    display: flex;
+    gap: 8px;
+}
+.confirm-buttons button {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
+    border: none;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+}
+.confirm-cancel {
+    background: rgba(255, 255, 255, 0.06);
+    color: #cfc9e6;
+}
+.confirm-yes {
+    background: var(--accent);
+    color: #fff;
+}

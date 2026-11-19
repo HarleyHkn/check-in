@@ -2,6 +2,7 @@
 // Mirrors the weight/steps data layer above.
 
 import { sameDay, toDateKey } from './date-utils.js';
+import { generateDemoMeasurementTypes, generateDemoMeasurementValues } from './demo-data.js';
 
 export let measurementTypes = [];   // [{name, isActive}, ...] - both base and custom types
 let measurementValues = [];         // [date, typeName, value] triples
@@ -10,7 +11,7 @@ let measurementValues = [];         // [date, typeName, value] triples
 export async function loadMeasurementTypes() {
     const response = await fetch('/api/measurement-types');
     if (!response.ok) {
-        measurementTypes = [];
+        measurementTypes = generateDemoMeasurementTypes();   // not logged in - show demo data instead of an empty page
         return;
     }
     const rows = await response.json();
@@ -23,7 +24,7 @@ export async function loadMeasurementTypes() {
 export async function loadMeasurementValues() {
     const response = await fetch('/api/measurements');
     if (!response.ok) {
-        measurementValues = [];
+        measurementValues = generateDemoMeasurementValues();
         return;
     }
     const rows = await response.json();
@@ -35,10 +36,10 @@ export async function loadMeasurementValues() {
 // Called by auth-ui.js's logout() - see weights-ui.js's resetWeightLog for why
 // these small functions exist instead of the caller just reassigning the arrays.
 export function resetMeasurementTypes() {
-    measurementTypes = [];
+    measurementTypes = generateDemoMeasurementTypes();   // back to the logged-out demo view, not a blank page
 }
 export function resetMeasurementValues() {
-    measurementValues = [];
+    measurementValues = generateDemoMeasurementValues();
 }
 
 // Finds this array's index for a given date+type, or -1 if there's no entry yet.
@@ -81,6 +82,30 @@ export async function upsertMeasurementValue(date, typeName, value) {
         measurementValues[index] = [dateKey, typeName, value];
     }
     return true;
+}
+
+// Returns the earliest and most recent recorded value for a measurement type,
+// or null if there's no data for it yet. Used by the Overview page's "Start ->
+// Now" dots, which only care about the first and last value, not every week.
+export function getMeasurementStartAndNow(typeName) {
+    const entries = [];
+    for (let i = 0; i < measurementValues.length; i++) {
+        if (measurementValues[i][1] === typeName) {
+            entries.push({ date: toDateKey(measurementValues[i][0]), value: measurementValues[i][2] });
+        }
+    }
+
+    if (entries.length === 0) {
+        return null;
+    }
+
+    entries.sort(function (a, b) {
+        if (a.date < b.date) { return -1; }
+        if (a.date > b.date) { return 1; }
+        return 0;
+    });
+
+    return { start: entries[0].value, now: entries[entries.length - 1].value };
 }
 
 // Adds a custom measurement type.

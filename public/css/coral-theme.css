@@ -1,0 +1,29 @@
+/* The app's color palette, used by every other CSS file. Loaded first, so no
+   other file has to redeclare :root. Change a color here, never as a hard-coded
+   hex value in a component file. */
+
+:root {
+    --bg-page: #060609;
+    --bg-card: #15131D;
+    --bg-raised: #20202C;
+
+    --text-primary: #FFFFFF;
+    --text-muted: #8f8aa8;
+    --text-dim: #65607c;
+
+    --accent: #E05438;
+    --accent-rgb: 224, 84, 56;
+    --accent-light: #FC8C5C;
+    --accent-light-rgb: 252, 140, 92;
+    --accent-fab-start: #E8704C;
+    --accent-fab-end: #D4543C;
+    --accent-deep: #603030;
+    --accent-outline: #D05038;
+    --accent-red: #96281B;
+
+    --positive: #6CD49C;
+    --positive-bg: #2D3331;
+
+    --hero-grad-top: #331D21;
+    --current-week-tint: #2B1A20;
+}
