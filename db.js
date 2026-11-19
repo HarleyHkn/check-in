@@ -5,9 +5,8 @@ require('dotenv').config(); // reads the .env file and loads it into process.env
 
 const { Pool, types } = require('pg');
 
-// By default pg converts DATE columns into JS Date objects, which reintroduces
-// the exact timezone-shift bug already fixed once in the old localStorage code
-// (a "2026-08-03" date could come back as "2026-08-02T22:00:00.000Z").
+// By default pg converts DATE columns into JS Date objects, which causes a
+// timezone-shift bug (a "2026-08-03" date can come back as "2026-08-02T22:00:00.000Z").
 // Keep dates as plain "YYYY-MM-DD" strings instead - no timezone math, ever.
 const DATE_TYPE_ID = 1082;
 types.setTypeParser(DATE_TYPE_ID, function (value) {

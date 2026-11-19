@@ -1,5 +1,5 @@
 // Creates the measurement_types table. Each user has their own list of measurement
-// types - the 7 base ones (seeded on signup, see routes/auth.js) plus any custom
+// types - the 7 base ones (created on first load, see routes/measurement-types.js) plus any custom
 // ones they add. is_active lets a user "remove" a type (stop seeing it in the entry
 // form) without deleting the type or its history.
 

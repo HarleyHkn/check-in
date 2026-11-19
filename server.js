@@ -1,6 +1,5 @@
-// The backend server. For now it only does one thing: serve the existing
-// front-end files (in public/) so the app can run through a real server
-// instead of just opening the file directly.
+// The backend server: sets up sessions, mounts the /api routes, and serves the
+// front-end files in public/.
 
 require('dotenv').config(); // load .env (SESSION_SECRET, DATABASE_URL) into process.env
 

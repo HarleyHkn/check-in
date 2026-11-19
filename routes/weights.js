@@ -18,8 +18,7 @@ router.get('/weights', requireLogin, async function (req, res) {
 });
 
 // Save a weight entry for a date. Adds a new one, or overwrites the existing
-// one for that date - same behavior as the old upsertEntryForDate, now enforced
-// by the UNIQUE(user_id, entry_date) constraint instead of hand-checked in JS.
+// one for that date, enforced by the UNIQUE(user_id, entry_date) constraint.
 router.post('/weights', requireLogin, async function (req, res) {
     const date = req.body.date;
     const weight = Number(req.body.weight);
