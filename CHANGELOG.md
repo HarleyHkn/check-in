@@ -37,3 +37,7 @@ Updates and changes done to the code.
   Solved: Overview is now redrawn as soon as the data has loaded.
   File: `public/js/app.js`
   Fixed: 2026-11-18
+- On GitHub the README showed the live demo note as one long line, the Overview image was very tall, and the roadmap had a typo.
+  Solved: put the live link on its own line, used a one-screen image, and fixed the typo.
+  Files: `README.md`, `docs/screenshots/overview.png`
+  Fixed: 2026-11-19

@@ -6,6 +6,7 @@ body measurements and progress photos, all in one weekly check-in.
 <img src="docs/screenshots/overview.png" alt="Check In overview page" width="320">
 
 > **Live demo:** https://check-in-rfhg.onrender.com
+>
 > Hosted on a free plan, so the first load can take up to a minute.
 > When you're not logged in, the app shows sample data, so you can try it
 > without creating an account.
@@ -92,7 +93,7 @@ Open http://localhost:3000.
 
 - Security improvements: keep logins across server restarts, safer cookie
   settings, limits on login attempts and password requirements
-- Tests users
+- Tests
 - Require an email address when creating an account
 
 
