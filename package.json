@@ -1,4 +1,11 @@
 {
+  "name": "check-in",
+  "version": "2.0.0",
+  "description": "A web app for tracking your body week by week: weight, steps, measurements and progress photos.",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "start": "node server.js"
   },
