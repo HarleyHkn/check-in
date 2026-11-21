@@ -186,13 +186,13 @@
 
 <div class="intro">
     <h1>Photos-koncept: svep-karusell + Compare</h1>
-    <p>Dra kort i sidled med fingret/musen för att "snurra" karusellen. Växla Compare uppe till höger för att se Senaste vs Nuvarande sida vid sida. Front/Side/Back-pillerna byter vinkel på kortet (grå = inte uppladdad än den veckan).</p>
+    <p>Dra kort i sidled med fingret/musen för att "snurra" karusellen. Växla Compare uppe till höger för att se Första vs Senaste sida vid sida. Front/Side/Back-pillerna byter vinkel på kortet (grå = inte uppladdad än den veckan).</p>
 </div>
 
 <div class="top-bar">
     <h2 id="viewTitle">Photos</h2>
     <div class="compare-toggle" id="compareToggle">
-        <span>Compare last vs current</span>
+        <span>Compare first vs latest</span>
         <div class="switch" id="compareSwitch"><div class="knob"></div></div>
     </div>
     <button class="profile-btn" id="profileBtn"><svg viewBox="0 0 24 24" width="16" height="16"><circle cx="12" cy="8" r="4" fill="currentColor"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8v1H4v-1z" fill="currentColor"/></svg></button>
@@ -217,7 +217,7 @@
 <div class="compare-wrap" id="compareWrap">
     <div class="compare-row">
         <div class="compare-card">
-            <div class="tag">LAST</div>
+            <div class="tag">FIRST</div>
             <img id="lastImg" src="" />
             <div class="range" id="lastRange"></div>
         </div>
@@ -407,7 +407,7 @@
     const carouselWrap = document.getElementById('carouselWrap');
     const compareWrap = document.getElementById('compareWrap');
     function renderCompare() {
-        const last = weeks[weeks.length - 2];
+        const last = weeks[0]; // first photo week
         const curr = weeks[weeks.length - 1];
         document.getElementById('lastImg').src = IMG[last.angles.includes(compareAngle) ? compareAngle : last.angles[0]];
         document.getElementById('currentImg').src = IMG[curr.angles.includes(compareAngle) ? compareAngle : curr.angles[0]];

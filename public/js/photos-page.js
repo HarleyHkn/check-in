@@ -1,5 +1,5 @@
 // Photos page: a drag-to-browse 3D carousel of every week that has at least one photo,
-// plus a "Compare last vs current" toggle. Uploading a NEW week's photos now
+// plus a "Compare first vs latest" toggle. Uploading a NEW week's photos now
 // happens through Check-in (see checkin-photo.js) - this page is browsing/
 // comparing history, not an upload surface, so (unlike the old Home/Weekly-
 // era version) there's no "always show an empty slot to catch up" behavior
@@ -46,7 +46,7 @@ function renderCarousel() {
 
 function renderCompare() {
     const weekMondays = getWeeksWithPhotos();
-    const last = weekMondays[weekMondays.length - 2];
+    const first = weekMondays[0]; // the very first photo week, to show the whole journey
     const current = weekMondays[weekMondays.length - 1];
 
     function fillCard(monday, imgId, rangeId) {
@@ -64,7 +64,7 @@ function renderCompare() {
             sunday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     }
 
-    fillCard(last, 'compareLastImg', 'compareLastRange');
+    fillCard(first, 'compareLastImg', 'compareLastRange');
     fillCard(current, 'compareCurrentImg', 'compareCurrentRange');
 
     const pillsWrap = document.getElementById('comparePills');

@@ -185,7 +185,7 @@
     <!-- ============================================================
          PHOTOS PAGE
          A drag-to-browse 3D carousel of every week that has a photo, plus a
-         Compare (last vs current) toggle. Uploading happens through
+         Compare (first vs latest) toggle. Uploading happens through
          Check-in, not here. See js/photos-page.js
          (+ js/photos-carousel.js for the drag/animation widget).
          ============================================================ -->
@@ -194,7 +194,7 @@
 
       <div class="compare-toggle-row" id="compareToggleRow">
         <div class="compare-toggle" id="compareToggle">
-          <span>Compare last vs current</span>
+          <span>Compare first vs latest</span>
           <div class="switch" id="compareSwitch"><div class="knob"></div></div>
         </div>
       </div>
@@ -207,8 +207,8 @@
       <div class="compare-wrap" id="compareWrap">
         <div class="compare-row">
           <div class="compare-card">
-            <div class="tag">LAST</div>
-            <img id="compareLastImg" alt="Last week's photo" />
+            <div class="tag">FIRST</div>
+            <img id="compareLastImg" alt="First week's photo" />
             <div class="range" id="compareLastRange"></div>
           </div>
           <div class="compare-card">

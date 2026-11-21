@@ -39,6 +39,10 @@ Updates and changes done to the code.
   Solved: updated it to match `package.json`.
   File: `package-lock.json`
   Changed: 2026-11-19
+- Compare on the Photos page only showed last week next to the latest, so the whole progress wasn't visible.
+  Solved: Compare now shows the first photo week next to the latest, with the labels changed to match.
+  Files: `public/js/photos-page.js`, `public/index.html`
+  Changed: 2026-11-21
 
 ### Fixed
 - `npm audit` found 5 known security holes in packages the app uses (multer, sharp, body-parser, proxy-addr, qs).
