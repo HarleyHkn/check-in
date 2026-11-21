@@ -120,13 +120,14 @@ function activateCheckinPage() {
         previousPageId = activePage.id;
     }
 
-    renderCheckinPage();
-
     const pages = document.querySelectorAll('.page');
     for (let i = 0; i < pages.length; i++) {
         pages[i].classList.remove('active');
     }
     document.getElementById('checkinPage').classList.add('active');
+
+    // Render after the page is visible - the week-pager measures its width, which is 0 while hidden.
+    renderCheckinPage();
 
     const navButtons = document.querySelectorAll('.nav-item');
     for (let i = 0; i < navButtons.length; i++) {

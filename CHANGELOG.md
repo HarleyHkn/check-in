@@ -37,6 +37,10 @@ Updates and changes done to the code.
   Changed: 2026-11-19
 
 ### Fixed
+- Tapping a week in the Calendar opened Check-in without that week's content, until you swiped away and back.
+  Solved: the page is now made visible before it is drawn, so the week-swiper measures its real width instead of 0.
+  File: `public/js/checkin-page.js`
+  Fixed: 2026-11-21
 - Overview showed "No data" when the app opened, until you switched tabs.
   Solved: Overview is now redrawn as soon as the data has loaded.
   File: `public/js/app.js`
