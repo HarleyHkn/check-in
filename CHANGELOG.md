@@ -53,6 +53,10 @@ Updates and changes done to the code.
   Changed: 2026-11-21
 
 ### Fixed
+- Showing the whole photo in the Photos carousel and Compare made the photos small, with dark bars around them.
+  Solved: the cards fill with the photo again; tapping a photo still shows it whole.
+  Files: `public/css/photos.css`, `mockups/approved/photos.html`
+  Fixed: 2026-11-21
 - In the Photos carousel, the cards sat too low and to the right, so they covered the "Week X of Y" text below.
   Solved: the cards are now centred in the carousel area.
   File: `public/css/photos.css`

@@ -91,7 +91,7 @@
     min-height: 0; /* flex items default to min-height:auto, which for an <img> resolves to its full
                       intrinsic aspect-ratio height (~253px for a 190px-wide 3:4 image) - that's what was
                       squeezing .card-foot down to nothing below it, since the image refused to shrink */
-    object-fit: contain; /* show the whole photo, not a cropped fill */
+    object-fit: cover; /* fill the card; tap a photo to see it whole (photo-viewer.js) */
     display: block;
     -webkit-user-drag: none; /* stops a mouse drag from starting the browser's native "drag this image" ghost */
 }
@@ -191,7 +191,7 @@
 .compare-card img {
     width: 100%;
     aspect-ratio: 3 / 4;
-    object-fit: contain;
+    object-fit: cover;
     display: block;
     cursor: zoom-in;
 }
