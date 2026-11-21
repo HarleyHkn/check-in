@@ -49,6 +49,10 @@ Updates and changes done to the code.
   Changed: 2026-11-21
 
 ### Fixed
+- Looking up week 53 of a year could return the last week of the year before.
+  Solved: the lookup now only accepts a Monday in the year asked for.
+  File: `public/js/date-utils.js`
+  Fixed: 2026-11-21
 - `npm audit` found 5 known security holes in packages the app uses (multer, sharp, body-parser, proxy-addr, qs).
   Solved: ran `npm audit fix`, which updated them to patched minor/patch versions (multer 2.5.0, sharp 0.35.5); `npm audit` now finds 0.
   File: `package-lock.json`

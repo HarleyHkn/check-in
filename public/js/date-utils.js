@@ -64,12 +64,14 @@ export function parseDateKey(dateKey) {
 // Finds the Monday for a given week number in the given year, by walking forward
 // from Jan 1st one week at a time until getWeekNumber() agrees - simplest way to
 // reverse that function without duplicating its date math. Returns null if the
-// week number doesn't exist (e.g. typed 99). Used by both the Photos page and
-// the Weekly page's "Add specific week" box.
+// week number doesn't exist (e.g. typed 99). Used by the Calendar page's
+// "Check in for another week" box (week-picker.js).
 export function findMondayForWeekNumber(weekNumber, year) {
     let monday = getMondayDate(new Date(year, 0, 1));
     for (let i = 0; i < 53; i++) {
-        if (getWeekNumber(monday) === weekNumber) {
+        // getWeekNumber() counts from the Monday's own year, so the Monday must be
+        // in `year` - otherwise "2026, week 53" matched Dec 29 2025 first.
+        if (getWeekNumber(monday) === weekNumber && monday.getFullYear() === year) {
             return monday;
         }
         const nextMonday = new Date(monday);
