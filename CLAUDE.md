@@ -1,7 +1,6 @@
 # CLAUDE.md
 
-This is the brief I give AI coding assistants (Claude Code) that work in this
-repository. It describes the project and the rules I want followed.
+Claude rules and regulations to follow for development.
 
 ## About the project
 
@@ -19,14 +18,15 @@ npm start          # runs the app at http://localhost:3000
 ```
 
 - `.env` must contain `SESSION_SECRET` and `DATABASE_URL`.
+- Optional: `API_KEY` and `API_USER_ID` let a script use the API without a
+  password (see `apiKey.js`). Never read or write their values.
 - There is no test suite, build step or linter yet.
 
 ## Code style
 
-- **Readable over clever.** Prefer clear names and plain loops over compact
-  tricks, even if it takes more lines.
+- **Readable over clever.** Prefer clear naming & proper code structor instead of smart short cuts. 
 - **One file per concern, max 300 lines.** Split instead of growing a file.
-- **New comments explain why**, not what.
+- **New comments explain why & how** In short format.
 
 ## Workflow
 

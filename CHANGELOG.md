@@ -5,6 +5,10 @@ Updates and changes done to the code.
 ## [Unreleased]
 
 ### Added
+- A script could only save data by logging in with my password.
+  Solved: added an optional API key; a request with `Authorization: Bearer <API_KEY>` counts as logged in as `API_USER_ID`.
+  Files: `apiKey.js`, `requireLogin.js`, `.env.example`, `README.md`, `CLAUDE.md`
+  Added: 2026-11-21
 - Links to the app showed no image or description when shared on LinkedIn and in chats.
   Solved: added link-preview (Open Graph) tags and a preview image.
   Files: `public/index.html`, `public/og-image.png`

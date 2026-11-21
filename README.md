@@ -80,6 +80,10 @@ SESSION_SECRET=any-long-random-string
 DATABASE_URL=your-postgres-connection-string
 ```
 
+Optional: to let a script save data without a password, also add `API_KEY`
+(at least 32 random characters) and `API_USER_ID` (your `userId` from
+`/api/whoami`). The script then sends `Authorization: Bearer <API_KEY>`.
+
 Then create the tables and start the app:
 
 ```
