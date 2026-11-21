@@ -41,6 +41,10 @@ Updates and changes done to the code.
   Changed: 2026-11-19
 
 ### Fixed
+- `npm audit` found 5 known security holes in packages the app uses (multer, sharp, body-parser, proxy-addr, qs).
+  Solved: ran `npm audit fix`, which updated them to patched minor/patch versions (multer 2.5.0, sharp 0.35.5); `npm audit` now finds 0.
+  File: `package-lock.json`
+  Fixed: 2026-11-21
 - Tapping a week in the Calendar opened Check-in without that week's content, until you swiped away and back.
   Solved: the page is now made visible before it is drawn, so the week-swiper measures its real width instead of 0.
   File: `public/js/checkin-page.js`
