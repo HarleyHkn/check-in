@@ -8,6 +8,7 @@ import { weekAverage } from './weights-ui.js';
 import { stepsWeekAverage } from './steps-ui.js';
 import { measurementTypes, getMeasurementValue, addMeasurementType, removeMeasurementType } from './measurements-ui.js';
 import { weekHasPhoto } from './photos-ui.js';
+import { weekTrainingCount } from './training-ui.js';
 
 // weekAverage()/stepsWeekAverage() are used everywhere below instead of
 // getWeightForDate(monday)/getStepsForDate(monday) - a week's weight/steps
@@ -39,13 +40,14 @@ function anyMeasurementFilledIn(monday) {
     return false;
 }
 
-// True if this week has weight, steps, a measurement, or a photo - used by
+// True if this week has weight, steps, training, a measurement, or a photo - used by
 // Calendar (checkin-page.js's openCheckinPageForWeek()) to decide whether
 // opening a week counts as "editing existing data" (needs a confirm dialog
 // before saving) or a fresh, empty week (no confirm needed).
 export function weekHasAnyData(monday) {
     return Number(weekAverage(monday)) !== 0 ||
         Number(stepsWeekAverage(monday)) !== 0 ||
+        weekTrainingCount(monday) !== 0 ||
         anyMeasurementFilledIn(monday) ||
         weekHasPhoto(monday);
 }
@@ -92,6 +94,7 @@ export function buildHeader(monday) {
     chips.appendChild(buildChip('Steg', Number(stepsWeekAverage(monday)) !== 0));
     chips.appendChild(buildChip('Mått', anyMeasurementFilledIn(monday)));
     chips.appendChild(buildChip('Foto', weekHasPhoto(monday)));
+    chips.appendChild(buildChip('Träning', weekTrainingCount(monday) !== 0));
     header.appendChild(chips);
 
     return header;

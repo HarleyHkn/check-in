@@ -4,6 +4,7 @@
 
 import { loadWeightLog, resetWeightLog } from './weights-ui.js';
 import { loadStepsLog, resetStepsLog } from './steps-ui.js';
+import { loadTrainingDays, resetTrainingDays } from './training-ui.js';
 import { loadMeasurementTypes, loadMeasurementValues, resetMeasurementTypes, resetMeasurementValues } from './measurements-ui.js';
 import { loadPhotoList, resetPhotoList } from './photos-ui.js';
 import { renderCalendarPage } from './calendar.js';
@@ -87,6 +88,7 @@ async function afterLogin(username) {
 
     await loadWeightLog();
     await loadStepsLog();
+    await loadTrainingDays();
     await loadMeasurementTypes();
     await loadMeasurementValues();
     await loadPhotoList();
@@ -112,6 +114,7 @@ export async function logout() {
     // has to be a function call rather than this file reassigning the arrays directly).
     resetWeightLog();
     resetStepsLog();
+    resetTrainingDays();
     resetMeasurementTypes();
     resetMeasurementValues();
     resetPhotoList();

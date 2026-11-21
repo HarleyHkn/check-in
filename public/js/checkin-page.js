@@ -1,4 +1,4 @@
-// The Check-in page: one flowing page (Weight -> Steps -> Measurements ->
+// The Check-in page: one flowing page (Weight -> Steps -> Training -> Measurements ->
 // Photo -> Save) for the current week, opened via the floating "+" button in
 // the bottom nav. Saves weight/steps against this week's Monday date instead
 // of today's date - weight/steps are now weekly-only entries, same pattern
@@ -12,6 +12,7 @@ import { upsertStepsForDate } from './steps-ui.js';
 import { upsertMeasurementValue } from './measurements-ui.js';
 import { buildHeader, buildWeightSection, buildStepsSection, buildMeasurementsSection, weekHasAnyData } from './checkin-sections.js';
 import { buildPhotoSection } from './checkin-photo.js';
+import { buildTrainingSection, saveTrainingDays } from './checkin-training.js';
 import { buildWeekPager } from './checkin-pager.js';
 import { dataReady } from './data-ready.js';
 import { authState, openLoginModal } from './auth-ui.js';
@@ -56,6 +57,7 @@ function buildCurrentWeekPanel() {
     panel.appendChild(buildHeader(currentMonday));
     panel.appendChild(buildWeightSection(currentMonday));
     panel.appendChild(buildStepsSection(currentMonday));
+    panel.appendChild(buildTrainingSection(currentMonday));
     panel.appendChild(buildMeasurementsSection(currentMonday, renderCheckinPage));
     panel.appendChild(buildPhotoCard(currentMonday));
     return panel;
@@ -213,6 +215,8 @@ async function performSave() {
             await upsertStepsForDate(currentMonday, steps);
         }
     }
+
+    await saveTrainingDays(currentMonday);
 
     const measureInputs = document.querySelectorAll('.checkin-measure-input');
     for (let i = 0; i < measureInputs.length; i++) {

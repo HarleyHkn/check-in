@@ -7,6 +7,7 @@
 
 import { loadWeightLog } from './weights-ui.js';
 import { loadStepsLog } from './steps-ui.js';
+import { loadTrainingDays } from './training-ui.js';
 import { loadMeasurementTypes, loadMeasurementValues } from './measurements-ui.js';
 import { loadPhotoList } from './photos-ui.js';
 import { renderCalendarPage } from './calendar.js';
@@ -29,6 +30,7 @@ async function initPage() {
     await Promise.all([
         loadWeightLog(),
         loadStepsLog(),
+        loadTrainingDays(),
         loadMeasurementTypes(),
         loadMeasurementValues(),
         loadPhotoList()

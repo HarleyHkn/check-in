@@ -13,6 +13,7 @@ const stepsRoutes = require('./routes/steps');
 const measurementTypesRoutes = require('./routes/measurement-types');
 const measurementsRoutes = require('./routes/measurements');
 const photosRoutes = require('./routes/photos');
+const trainingRoutes = require('./routes/training');
 
 const app = express();
 const port = process.env.PORT || 3000; // hosts like Render assign their own port via this env var
@@ -31,6 +32,7 @@ app.use('/api', stepsRoutes);           // adds GET/POST /api/steps, DELETE /api
 app.use('/api', measurementTypesRoutes); // adds measurement-types routes
 app.use('/api', measurementsRoutes);    // adds measurements (values) routes
 app.use('/api', photosRoutes);          // adds GET/POST/DELETE /api/photos routes
+app.use('/api', trainingRoutes);        // adds GET/POST /api/training, DELETE /api/training/:date
 
 app.use(express.static(path.join(__dirname, 'public'))); // serve everything in public/ as-is
 

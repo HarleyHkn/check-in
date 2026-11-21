@@ -1,0 +1,33 @@
+/* Check-in page's Training section (see checkin-training.js). Each weekday
+   reuses the header chip look (.chip / .chip-dot / .chip-label in
+   checkin.css), just as a button with bigger circles that are easier to tap. */
+
+.training-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 6px;
+}
+
+.training-day {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+.training-day .chip-dot {
+    width: 32px;
+    height: 32px;
+    font-size: 0.9rem;
+}
+
+.training-day .chip-label {
+    font-size: 0.6rem;
+}
+
+.training-count {
+    text-align: center;
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    margin-top: 8px;
+}

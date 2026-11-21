@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Check-in-koncept: en veckovis session</title>
+<style>
+    * { box-sizing: border-box; }
+
+    /* ---- COLOR SYSTEM: coral, not orange/red-orange.
+       All colors in this file come from here, no other hex values. ---- */
+    :root {
+        --bg-page: #060609;
+        --bg-card: #15131D;
+        --bg-raised: #20202C;
+        --text-primary: #FFFFFF;
+        --text-muted: #8f8aa8;
+        --text-dim: #65607c;
+
+        --accent: #E05438;
+        --accent-rgb: 224, 84, 56;
+        --accent-light: #FC8C5C;
+        --accent-fab-start: #E8704C;
+        --accent-fab-end: #D4543C;
+        --accent-deep: #603030;
+
+        --positive: #6CD49C;
+        --positive-bg: #2D3331;
+
+        --accent-red: #96281B;
+    }
+
+    body {
+        margin: 0;
+        padding: 36px 16px 60px;
+        background: var(--bg-page);
+        color: var(--text-primary);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /* Hide the browser's built-in up/down spinner arrows on every number
+       input in this mockup - the hero weight/steps numbers and the
+       measurement grid all use type="number" just for the numeric keyboard
+       on mobile, not for the spinner buttons. */
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    input[type="number"] {
+        -moz-appearance: textfield;
+        appearance: textfield;
+    }
+
+    .intro { max-width: 640px; text-align: center; margin-bottom: 26px; }
+    .intro h1 { font-size: 1.2rem; margin-bottom: 4px; }
+    .intro p { color: var(--text-muted); font-size: 0.8rem; line-height: 1.5; }
+
+    .phone { width: 360px; position: relative; }
+
+    .page-top-bar { display: flex; justify-content: flex-end; margin-bottom: 10px; }
+    .profile-btn {
+        width: 34px; height: 34px; border-radius: 50%;
+        background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+        display: flex; align-items: center; justify-content: center;
+        color: var(--accent);
+        font-size: 1rem; cursor: pointer;
+    }
+    .profile-menu {
+        display: none;
+        position: absolute;
+        top: 46px;
+        right: 0;
+        width: 190px;
+        background: #1c1a26;
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 14px;
+        padding: 14px;
+        z-index: 40;
+    }
+    .profile-menu.open { display: block; }
+    .profile-menu .logged-out-view p { font-size: 0.72rem; color: var(--text-muted); margin: 0 0 10px; }
+    .profile-menu button {
+        width: 100%; padding: 9px; border: none; border-radius: 10px;
+        font-size: 0.78rem; font-weight: 700; cursor: pointer; margin-top: 6px;
+    }
+    .profile-menu .login-btn { background: linear-gradient(90deg, var(--accent) 0%, var(--accent) 50%, var(--accent-red) 100%); color: #fff; }
+    .profile-menu .logout-btn { background: rgba(255,255,255,0.06); color: #cfc9e6; }
+    .profile-menu .logged-in-view { display: none; }
+    .profile-menu .username { font-size: 0.82rem; font-weight: 700; margin-bottom: 2px; }
+    .profile-menu .username-sub { font-size: 0.64rem; color: var(--text-dim); margin-bottom: 10px; }
+
+    /* ---- header: week label + 4 progress chips, same check-dot idea as History ---- */
+    .checkin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+    .checkin-header .wk { font-size: 1.05rem; font-weight: 800; }
+    .checkin-header .range { font-size: 0.7rem; color: var(--text-muted); }
+
+    .progress-chips { display: flex; gap: 6px; }
+    .chip { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+    .chip-dot {
+        width: 22px; height: 22px; border-radius: 50%;
+        background: rgba(255,255,255,0.05); color: #4a4560;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.68rem; font-weight: 700;
+    }
+    /* Every chip lights up coral once filled in, regardless of type - there
+       are no gray checkmarks for a filled chip, per the color spec. Same
+       coral-to-red gradient as the Save button/FAB. */
+    .chip-dot.done { background: linear-gradient(135deg, var(--accent) 0%, var(--accent) 50%, var(--accent-red) 100%); color: #fff; }
+    .chip-label { font-size: 0.52rem; color: var(--text-dim); text-transform: uppercase; }
+
+    /* ---- shared section card - flat card color, no accent wash (a wash on every card looks cloudy). ---- */
+    .section-card { background: var(--bg-card); border-radius: 18px; padding: 18px; margin-bottom: 12px; }
+    .section-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); margin-bottom: 10px; }
+
+    /* ---- weight: hero-style centered input ---- */
+    .hero-input-row { display: flex; align-items: baseline; justify-content: center; gap: 8px; }
+    .hero-input {
+        background: transparent;
+        border: none;
+        color: var(--text-primary);
+        font-size: 2.6rem;
+        font-weight: 800;
+        width: 140px;
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+        outline: none;
+    }
+    .hero-unit { font-size: 1.1rem; color: var(--text-muted); }
+    /* Same "positive change" green as the hero-pill elsewhere - this is the
+       exact same text ("↓ 0.6 kg since last check-in") just unboxed here. */
+    .hero-sub { text-align: center; font-size: 0.68rem; color: var(--positive); margin-top: 4px; }
+
+    /* ---- steps: simpler input + future auto-sync note ---- */
+    .steps-row { display: flex; align-items: baseline; justify-content: center; gap: 8px; }
+    .steps-input { background: transparent; border: none; color: var(--text-primary); font-size: 1.8rem; font-weight: 800; width: 120px; text-align: right; outline: none; }
+    .autosync-note {
+        margin-top: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        font-size: 0.64rem;
+        color: var(--text-dim);
+        background: rgba(255,255,255,0.03);
+        border-radius: 999px;
+        padding: 6px 10px;
+    }
+    .autosync-note .switch-mini { width: 24px; height: 14px; border-radius: 999px; background: rgba(255,255,255,0.1); position: relative; }
+    .autosync-note .switch-mini .knob-mini { position: absolute; top: 2px; left: 2px; width: 10px; height: 10px; border-radius: 50%; background: var(--text-dim); }
+
+    /* ---- NEW: training - one small circle per weekday, tap to check it ---- */
+    .training-row { display: flex; justify-content: space-between; padding: 0 6px; }
+    /* Each day reuses the header chip look (.chip / .chip-dot / .chip-label), just as a button */
+    .training-day { background: none; border: none; padding: 0; cursor: pointer; }
+    /* Bigger than the header chips (22px) - easier to tap on a phone */
+    .training-day .chip-dot { width: 32px; height: 32px; font-size: 0.9rem; }
+    .training-day .chip-label { font-size: 0.6rem; }
+    .training-count { text-align: center; font-size: 0.68rem; color: var(--text-dim); margin-top: 8px; }
+
+    /* ---- measurements: compact 2-col grid, not a wall of inputs.
+       Input fields are a "raised surface" per the color spec. ---- */
+    .measure-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .measure-field { background: var(--bg-raised); border-radius: 10px; padding: 8px 10px; }
+    .measure-field label { display: block; font-size: 0.62rem; color: var(--text-muted); margin-bottom: 3px; }
+    .measure-field .field-row { display: flex; align-items: baseline; gap: 4px; }
+    .measure-field input { background: transparent; border: none; color: var(--text-primary); font-size: 1rem; font-weight: 700; width: 100%; outline: none; }
+    .measure-field .unit { font-size: 0.62rem; color: var(--text-dim); }
+
+    /* ---- photo: one card by default, ghost buttons to add more angles.
+       Photo cards are a "raised surface" too, same as measurement fields. ---- */
+    .photo-row { display: flex; gap: 10px; align-items: stretch; }
+    .photo-card { width: 110px; border-radius: 12px; overflow: hidden; background: var(--bg-raised); }
+    .photo-card img { width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block; }
+    .photo-card .tag { text-align: center; font-size: 0.6rem; font-weight: 700; padding: 5px; color: var(--text-primary); }
+
+    .add-angle-col { flex: 1; display: flex; flex-direction: column; gap: 8px; justify-content: center; }
+    .add-angle-btn {
+        border: 1px dashed rgba(255,255,255,0.15);
+        border-radius: 10px;
+        padding: 10px 6px;
+        text-align: center;
+        font-size: 0.68rem;
+        color: var(--text-muted);
+        cursor: pointer;
+    }
+    .add-angle-btn:hover { border-color: rgba(255,255,255,0.5); color: var(--text-primary); }
+
+    /* ---- save button: solid coral for the first half, then a smooth
+       transition to a redder tone from the middle onward. ---- */
+    .save-button {
+        width: 100%;
+        padding: 14px;
+        border: none;
+        border-radius: 14px;
+        background: linear-gradient(90deg, var(--accent) 0%, var(--accent) 50%, var(--accent-red) 100%);
+        color: #fff;
+        font-size: 0.95rem;
+        font-weight: 700;
+        margin-top: 6px;
+        cursor: pointer;
+    }
+</style>
+</head>
+<body>
+
+<div class="intro">
+    <h1>Utkast: Träning på check-in-sidan</h1>
+    <p>NYTT: rutan "Training" under Steg — bocka i vilka dagar du tränade (Mon–Sun), samma ✓-cirklar som chipsen uppe, en ifylld blir korall och antal pass räknas ut under. Nytt chip "Träning" uppe till höger (samma chip läggs i kalendern bredvid Vikt/Steg/Mått/Foto). Sparas per vecka med samma Spara-knapp.</p>
+</div>
+
+<div class="phone">
+    <div class="page-top-bar">
+        <button class="profile-btn" id="profileBtn"><svg viewBox="0 0 24 24" width="16" height="16"><circle cx="12" cy="8" r="4" fill="currentColor"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8v1H4v-1z" fill="currentColor"/></svg></button>
+    </div>
+    <div class="profile-menu" id="profileMenu">
+        <div class="logged-out-view" id="loggedOutView">
+            <p>Log in to save your data across devices.</p>
+            <button class="login-btn">Log in</button>
+        </div>
+        <div class="logged-in-view" id="loggedInView">
+            <div class="username">Alex</div>
+            <div class="username-sub">Logged in</div>
+            <button class="logout-btn" id="logoutBtn">Log out</button>
+        </div>
+    </div>
+
+    <div class="checkin-header">
+        <div>
+            <div class="wk">Week 46 check-in</div>
+            <div class="range">Nov 16–22</div>
+        </div>
+        <div class="progress-chips">
+            <div class="chip"><div class="chip-dot done weight">✓</div><div class="chip-label">Vikt</div></div>
+            <div class="chip"><div class="chip-dot done steps">✓</div><div class="chip-label">Steg</div></div>
+            <div class="chip"><div class="chip-dot">·</div><div class="chip-label">Mått</div></div>
+            <div class="chip"><div class="chip-dot">·</div><div class="chip-label">Foto</div></div>
+            <div class="chip"><div class="chip-dot done">✓</div><div class="chip-label">Träning</div></div>
+        </div>
+    </div>
+
+    <div class="section-card">
+        <div class="section-label">Weight</div>
+        <div class="hero-input-row">
+            <input class="hero-input" type="number" value="81.4" />
+            <span class="hero-unit">kg</span>
+        </div>
+        <div class="hero-sub">↓ 0.6 kg since last check-in</div>
+    </div>
+
+    <div class="section-card">
+        <div class="section-label">Steps (average this week)</div>
+        <div class="steps-row">
+            <input class="steps-input" type="number" value="8490" />
+        </div>
+        <div class="autosync-note">
+            <div class="switch-mini"><div class="knob-mini"></div></div>
+            Auto-sync from health tracker — coming soon
+        </div>
+    </div>
+
+    <!-- NEW: training - check the days you trained this week -->
+    <div class="section-card">
+        <div class="section-label">Training (days this week)</div>
+        <div class="training-row">
+            <button class="chip training-day"><div class="chip-dot done">✓</div><div class="chip-label">Mon</div></button>
+            <button class="chip training-day"><div class="chip-dot">·</div><div class="chip-label">Tue</div></button>
+            <button class="chip training-day"><div class="chip-dot done">✓</div><div class="chip-label">Wed</div></button>
+            <button class="chip training-day"><div class="chip-dot">·</div><div class="chip-label">Thu</div></button>
+            <button class="chip training-day"><div class="chip-dot done">✓</div><div class="chip-label">Fri</div></button>
+            <button class="chip training-day"><div class="chip-dot">·</div><div class="chip-label">Sat</div></button>
+            <button class="chip training-day"><div class="chip-dot">·</div><div class="chip-label">Sun</div></button>
+        </div>
+        <div class="training-count" id="trainingCount">3 sessions</div>
+    </div>
+
+    <div class="section-card">
+        <div class="section-label">Measurements</div>
+        <div class="measure-grid">
+            <div class="measure-field"><label>Chest</label><div class="field-row"><input type="number" value="99.0" /><span class="unit">cm</span></div></div>
+            <div class="measure-field"><label>Waist</label><div class="field-row"><input type="number" value="85.8" /><span class="unit">cm</span></div></div>
+            <div class="measure-field"><label>Left Arm</label><div class="field-row"><input type="number" value="31.2" /><span class="unit">cm</span></div></div>
+            <div class="measure-field"><label>Right Arm</label><div class="field-row"><input type="number" value="31.4" /><span class="unit">cm</span></div></div>
+            <div class="measure-field"><label>Bottom</label><div class="field-row"><input type="number" value="99.2" /><span class="unit">cm</span></div></div>
+            <div class="measure-field"><label>Left Leg</label><div class="field-row"><input type="number" value="54.1" /><span class="unit">cm</span></div></div>
+        </div>
+    </div>
+
+    <div class="section-card">
+        <div class="section-label">Photo</div>
+        <div class="photo-row">
+            <div class="photo-card">
+                <img src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='400'%3E%3Crect width='300' height='400' fill='%2320202c'/%3E%3Ccircle cx='150' cy='95' r='36' fill='%23603030' stroke='%23D05038' stroke-width='3'/%3E%3Crect x='100' y='138' width='100' height='112' rx='16' fill='%23603030' stroke='%23D05038' stroke-width='3'/%3E%3Crect x='72' y='142' width='22' height='105' rx='11' fill='%23603030' stroke='%23D05038' stroke-width='3'/%3E%3Crect x='206' y='142' width='22' height='105' rx='11' fill='%23603030' stroke='%23D05038' stroke-width='3'/%3E%3Crect x='118' y='252' width='28' height='118' rx='12' fill='%23603030' stroke='%23D05038' stroke-width='3'/%3E%3Crect x='154' y='252' width='28' height='118' rx='12' fill='%23603030' stroke='%23D05038' stroke-width='3'/%3E%3C/svg%3E" />
+                <div class="tag">Front</div>
+            </div>
+            <div class="add-angle-col">
+                <div class="add-angle-btn">+ Add Side</div>
+                <div class="add-angle-btn">+ Add Back</div>
+            </div>
+        </div>
+    </div>
+
+    <button class="save-button">Save check-in</button>
+</div>
+
+<script>
+    const profileBtn = document.getElementById('profileBtn');
+    const profileMenu = document.getElementById('profileMenu');
+    profileBtn.addEventListener('click', function (e) { e.stopPropagation(); profileMenu.classList.toggle('open'); });
+    document.addEventListener('click', function () { profileMenu.classList.remove('open'); });
+    profileMenu.addEventListener('click', function (e) { e.stopPropagation(); });
+    document.querySelector('.login-btn').addEventListener('click', function () {
+        document.getElementById('loggedOutView').style.display = 'none';
+        document.getElementById('loggedInView').style.display = 'block';
+    });
+    document.getElementById('logoutBtn').addEventListener('click', function () {
+        document.getElementById('loggedOutView').style.display = 'block';
+        document.getElementById('loggedInView').style.display = 'none';
+        profileMenu.classList.remove('open');
+    });
+</script>
+
+</body>
+</html>
+<script>
+    // Mockup only: toggle a day on/off and update the count below the circles.
+    document.querySelectorAll('.training-day').forEach(function (day) {
+        day.addEventListener('click', function () {
+            const dot = day.querySelector('.chip-dot');
+            dot.classList.toggle('done');
+            dot.textContent = dot.classList.contains('done') ? '✓' : '·';
+            const count = document.querySelectorAll('.training-day .chip-dot.done').length;
+            document.getElementById('trainingCount').textContent = count + (count === 1 ? ' session' : ' sessions');
+        });
+    });
+</script>

@@ -5,6 +5,10 @@ Updates and changes done to the code.
 ## [Unreleased]
 
 ### Added
+- There was no way to log which days I trained, so the weekly review had no training data.
+  Solved: added a Training section on the Check-in page with one circle per weekday (Mon–Sun) to check, a "Träning" chip in the header and Calendar, and a `training` table (one row per trained day) with GET/POST/DELETE `/api/training` that also works with the API key.
+  Files: `setup/create-training-table.js`, `setup-db.js`, `routes/training.js`, `server.js`, `public/js/training-ui.js`, `public/js/checkin-training.js`, `public/css/checkin-training.css`, `public/index.html`, `public/js/checkin-page.js`, `public/js/checkin-sections.js`, `public/js/calendar.js`, `public/js/app.js`, `public/js/auth-ui.js`, `mockups/approved/checkin-training.html`
+  Added: 2026-11-21
 - A script could only save data by logging in with my password.
   Solved: added an optional API key; a request with `Authorization: Bearer <API_KEY>` counts as logged in as `API_USER_ID`.
   Files: `apiKey.js`, `requireLogin.js`, `.env.example`, `README.md`, `CLAUDE.md`

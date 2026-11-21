@@ -1,6 +1,6 @@
 // Calendar page: a flat list of weeks grouped under month headers (data is
-// weekly, so there's no day grid). Each row shows 4
-// checkmark chips (Vikt/Steg/Mått/Foto); tapping a row opens the same
+// weekly, so there's no day grid). Each row shows 5
+// checkmark chips (Vikt/Steg/Mått/Foto/Träning); tapping a row opens the same
 // Check-in form, pre-filled with that week's saved values.
 
 import { getMondayDate, formatDateKey, getWeekNumber, parseDateKey } from './date-utils.js';
@@ -8,6 +8,7 @@ import { weekAverage } from './weights-ui.js';
 import { stepsWeekAverage } from './steps-ui.js';
 import { measurementTypes, getMeasurementValue } from './measurements-ui.js';
 import { weekHasPhoto } from './photos-ui.js';
+import { weekTrainingCount } from './training-ui.js';
 import { openCheckinPageForWeek } from './checkin-page.js';
 
 // How many weeks before the current one always get a row, data or not.
@@ -113,6 +114,7 @@ function buildWeekRow(weekMondayKey, isCurrentWeek) {
     checkGroup.appendChild(buildChip('Steg', Number(stepsWeekAverage(mondayDate)) !== 0));
     checkGroup.appendChild(buildChip('Mått', anyMeasurementFilledIn(mondayDate)));
     checkGroup.appendChild(buildChip('Foto', weekHasPhoto(mondayDate)));
+    checkGroup.appendChild(buildChip('Träning', weekTrainingCount(mondayDate) !== 0));
 
     const chevron = document.createElement('span');
     chevron.className = 'chevron';
