@@ -3,27 +3,16 @@
 // checkmark chips (Vikt/Steg/Mått/Foto); tapping a row opens the same
 // Check-in form, pre-filled with that week's saved values.
 
-import { getMondayDate, formatDateKey, getWeekNumber, parseDateKey, findMondayForWeekNumber } from './date-utils.js';
+import { getMondayDate, formatDateKey, getWeekNumber, parseDateKey } from './date-utils.js';
 import { weekAverage } from './weights-ui.js';
 import { stepsWeekAverage } from './steps-ui.js';
 import { measurementTypes, getMeasurementValue } from './measurements-ui.js';
 import { weekHasPhoto } from './photos-ui.js';
 import { openCheckinPageForWeek } from './checkin-page.js';
 
-// How many weeks before the current one are always guaranteed a row,
-// regardless of whether they have any data yet - same "always show a place to
-// catch up" pattern the Photos page used to have before it became view-only.
-let calendarWeeksBackShown = 8;
-
-// Specific weeks added by typing a week number - same pattern as photos-page.js.
-let manuallyAddedCalendarWeekKeys = {};
-
-// Called by auth-ui.js's logout() - see weights-ui.js's resetWeightLog for why
-// this small function exists instead of the caller just reassigning these two.
-export function resetCalendarWeeksBackShown() {
-    calendarWeeksBackShown = 8;
-    manuallyAddedCalendarWeekKeys = {};
-}
+// How many weeks before the current one always get a row, data or not.
+// Older empty weeks are reached through the week picker (week-picker.js).
+const WEEKS_BACK_SHOWN = 8;
 
 function anyMeasurementFilledIn(monday) {
     for (let i = 0; i < measurementTypes.length; i++) {
@@ -35,14 +24,14 @@ function anyMeasurementFilledIn(monday) {
     return false;
 }
 
-// Which week Mondays to show: the current week plus calendarWeeksBackShown
+// Which week Mondays to show: the current week plus WEEKS_BACK_SHOWN
 // weeks before it, plus every week that already has ANY data (which can reach
-// further back than that), plus any manually-added week.
+// further back than that).
 function getCalendarWeekKeys() {
     const currentMonday = getMondayDate();
 
     const seen = {}; // plain object used as a set of date-key strings
-    for (let weeksBack = 0; weeksBack <= calendarWeeksBackShown; weeksBack++) {
+    for (let weeksBack = 0; weeksBack <= WEEKS_BACK_SHOWN; weeksBack++) {
         const mondayForWeek = new Date(currentMonday);
         mondayForWeek.setDate(currentMonday.getDate() - weeksBack * 7);
         seen[formatDateKey(mondayForWeek)] = true;
@@ -50,18 +39,14 @@ function getCalendarWeekKeys() {
 
     // Walk back up to 2 years looking for any older week that has data, so a
     // week doesn't disappear from the list just because it's further back
-    // than calendarWeeksBackShown.
-    for (let weeksBack = calendarWeeksBackShown + 1; weeksBack <= 104; weeksBack++) {
+    // than WEEKS_BACK_SHOWN.
+    for (let weeksBack = WEEKS_BACK_SHOWN + 1; weeksBack <= 104; weeksBack++) {
         const mondayForWeek = new Date(currentMonday);
         mondayForWeek.setDate(currentMonday.getDate() - weeksBack * 7);
         if (Number(weekAverage(mondayForWeek)) !== 0 || Number(stepsWeekAverage(mondayForWeek)) !== 0 ||
             anyMeasurementFilledIn(mondayForWeek) || weekHasPhoto(mondayForWeek)) {
             seen[formatDateKey(mondayForWeek)] = true;
         }
-    }
-
-    for (const weekKey in manuallyAddedCalendarWeekKeys) {
-        seen[weekKey] = true;
     }
 
     const weekKeys = Object.keys(seen);
@@ -170,33 +155,5 @@ export function renderCalendarPage() {
     }
 }
 
-document.getElementById('addPreviousCalendarWeekButton').addEventListener('click', function () {
-    calendarWeeksBackShown++;
-    renderCalendarPage();
-});
-
-document.getElementById('addSpecificCalendarWeekButton').addEventListener('click', function () {
-    const typedValue = prompt('Which week number of this year? (e.g. 25)');
-    if (!typedValue) {
-        return; // cancelled
-    }
-
-    const weekNumber = Number(typedValue);
-    if (isNaN(weekNumber)) {
-        alert('Please enter a number.');
-        return;
-    }
-
-    const currentYear = new Date().getFullYear();
-    const mondayForWeek = findMondayForWeekNumber(weekNumber, currentYear);
-
-    if (mondayForWeek === null) {
-        alert('That is not a valid week number.');
-        return;
-    }
-
-    manuallyAddedCalendarWeekKeys[formatDateKey(mondayForWeek)] = true;
-    renderCalendarPage();
-});
 
 renderCalendarPage();

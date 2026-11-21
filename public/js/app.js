@@ -10,6 +10,7 @@ import { loadStepsLog } from './steps-ui.js';
 import { loadMeasurementTypes, loadMeasurementValues } from './measurements-ui.js';
 import { loadPhotoList } from './photos-ui.js';
 import { renderCalendarPage } from './calendar.js';
+import './week-picker.js';
 import { markDataReady } from './data-ready.js';
 import { renderOverview } from './overview.js';
 import './pages.js'; // side effect: registers the bottom-nav listeners + shows the overview page

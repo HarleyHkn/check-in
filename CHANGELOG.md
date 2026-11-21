@@ -47,6 +47,10 @@ Updates and changes done to the code.
   Solved: the photos now show in full, tapping one opens it full screen, and the Compare label says LATEST.
   Files: `public/css/photos.css`, `public/css/photo-viewer.css`, `public/js/photo-viewer.js`, `public/js/photos-carousel.js`, `public/js/photos-page.js`, `public/index.html`
   Changed: 2026-11-21
+- The buttons for adding older weeks in Calendar still had the old v1 style, and tapping them seemed to do nothing.
+  Solved: replaced them with one "Check in for another week" button in the new style. It opens a box for the week and year, then goes straight to Check-in for that week.
+  Files: `public/css/calendar.css`, `public/css/week-picker.css`, `public/js/week-picker.js`, `public/js/calendar.js`, `public/js/auth-ui.js`, `public/js/app.js`, `public/index.html`
+  Changed: 2026-11-21
 
 ### Fixed
 - Looking up week 53 of a year could return the last week of the year before.

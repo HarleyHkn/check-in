@@ -32,6 +32,7 @@
     <link rel="stylesheet" href="css/checkin-save.css" />
     <link rel="stylesheet" href="css/overview.css" />
     <link rel="stylesheet" href="css/calendar.css" />
+    <link rel="stylesheet" href="css/week-picker.css" />
     <link rel="stylesheet" href="css/photos.css" />
     <link rel="stylesheet" href="css/photo-viewer.css" />
     <link rel="stylesheet" href="css/graph.css" />
@@ -129,11 +130,32 @@
 
       <div class="calendar-week-list" id="calendarWeekList"></div>
 
-      <!-- Same "always show current + N previous, plus a way to jump further
-           back" pattern as the Photos page. -->
+      <!-- Older weeks without data aren't listed - this opens Check-in for any
+           past week. See js/week-picker.js. -->
       <div class="calendar-add-week-row">
-        <button type="button" class="small-btn" id="addPreviousCalendarWeekButton">Add previous</button>
-        <button type="button" class="small-btn" id="addSpecificCalendarWeekButton">Add specific week</button>
+        <button type="button" class="add-week-btn" id="openWeekPickerButton"><span class="plus">+</span>Check in for another week</button>
+      </div>
+
+      <div class="week-picker-overlay" id="weekPickerOverlay">
+        <div class="week-picker-box">
+          <div class="week-picker-year" id="weekPickerYearBox">
+            <span id="weekPickerYearText"></span>
+            <input id="weekPickerYear" type="text" inputmode="numeric" maxlength="4" aria-label="Year" />
+            <button type="button" class="week-picker-year-edit" id="weekPickerYearEdit" aria-label="Change year">
+              <svg viewBox="0 0 24 24" width="12" height="12"><path d="M4 20h4L19 9l-4-4L4 16v4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+          <h3>Check in for a week</h3>
+          <div class="week-picker-field">
+            <label for="weekPickerWeek">Week</label>
+            <input id="weekPickerWeek" type="text" inputmode="numeric" maxlength="2" placeholder="25" />
+          </div>
+          <p class="week-picker-error" id="weekPickerError"></p>
+          <div class="confirm-buttons">
+            <button type="button" class="confirm-cancel" id="weekPickerCancel">Cancel</button>
+            <button type="button" class="confirm-yes" id="weekPickerOpen">Open</button>
+          </div>
+        </div>
       </div>
     </div>
 

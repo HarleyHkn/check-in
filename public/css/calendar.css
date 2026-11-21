@@ -98,22 +98,35 @@
     gap: 8px;
     width: 100%;
     max-width: 340px;
-    margin: 10px auto 0;
+    margin: 14px auto 24px; /* bottom margin keeps the row clear of the raised + button */
 }
 
-/* Small outlined button - "Add previous"/"Add specific week" above. */
-.small-btn {
+/* "Add previous"/"Add specific week": dashed like an empty week slot, so they
+   read as a place to add a row rather than main actions next to the + button. */
+.add-week-btn {
     flex: 1 1 0;
-    border-radius: 6px;
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    padding: 6px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 12px 0;
+    border-radius: 16px;
+    border: 1px dashed rgba(255, 255, 255, 0.14);
+    background: transparent;
+    color: var(--text-muted);
     font-family: inherit;
-    font-weight: bold;
     font-size: 0.75rem;
+    font-weight: 600;
     cursor: pointer;
-    background: rgba(255, 255, 255, 0.1);
-    color: #cecccc;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
 }
-.small-btn:hover {
-    color: #ffffff;
+.add-week-btn:hover {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border-color: rgba(var(--accent-rgb), 0.5);
+}
+.add-week-btn .plus {
+    color: var(--accent);
+    font-size: 1rem;
+    line-height: 1;
 }

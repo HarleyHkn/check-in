@@ -6,7 +6,7 @@ import { loadWeightLog, resetWeightLog } from './weights-ui.js';
 import { loadStepsLog, resetStepsLog } from './steps-ui.js';
 import { loadMeasurementTypes, loadMeasurementValues, resetMeasurementTypes, resetMeasurementValues } from './measurements-ui.js';
 import { loadPhotoList, resetPhotoList } from './photos-ui.js';
-import { renderCalendarPage, resetCalendarWeeksBackShown } from './calendar.js';
+import { renderCalendarPage } from './calendar.js';
 
 // Shared login state, read and set from a few files across the app
 // (checkin-page.js and this file). Wrapped in one object instead
@@ -115,7 +115,6 @@ export async function logout() {
     resetMeasurementTypes();
     resetMeasurementValues();
     resetPhotoList();
-    resetCalendarWeeksBackShown();
 
     renderCalendarPage(); // otherwise the calendar keeps showing the logged-out user's chips
     document.getElementById('profileMenu').classList.remove('open');

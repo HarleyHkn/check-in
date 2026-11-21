@@ -138,6 +138,70 @@
         font-size: 1.5rem; color: #fff;
         box-shadow: 0 10px 24px rgba(var(--accent-rgb), 0.5), 0 0 0 6px var(--bg-page);
     }
+    /* ---- Add older weeks: quiet "empty week" style, so they read as a
+       place to add a row, not as main actions competing with the FAB ---- */
+    .add-week-row { display: flex; gap: 8px; margin: 14px 0 96px; }
+    .add-week-btn {
+        flex: 1 1 0;
+        display: flex; align-items: center; justify-content: center; gap: 6px;
+        padding: 12px 0;
+        border-radius: 16px;
+        border: 1px dashed rgba(255, 255, 255, 0.14);
+        background: transparent;
+        color: var(--text-muted);
+        font-family: inherit; font-size: 0.75rem; font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s, color 0.2s, border-color 0.2s;
+    }
+    .add-week-btn:hover {
+        background: var(--bg-card);
+        color: var(--text-primary);
+        border-color: rgba(var(--accent-rgb), 0.5);
+    }
+    .add-week-btn .plus { color: var(--accent); font-size: 1rem; line-height: 1; }
+    /* ---- Week picker dialog: same box/buttons as the "Are you sure" dialog ---- */
+    .picker-overlay {
+        display: none; position: fixed; inset: 0; z-index: 1000;
+        background: rgba(0, 0, 0, 0.55); align-items: center; justify-content: center;
+    }
+    .picker-overlay.open { display: flex; }
+    .picker-box { position: relative; width: 280px; background: var(--bg-card); border-radius: 16px; padding: 20px; }
+    .picker-box h3 { margin: 0 0 14px; font-size: 1rem; text-align: left; }
+    .picker-field { display: flex; flex-direction: column; gap: 4px; }
+    /* Year sits small in the corner - almost always this year, editable via the pencil */
+    .picker-year {
+        position: absolute; top: 17px; right: 16px; /* level with the title */
+        display: flex; align-items: center; gap: 4px;
+        font-size: 0.72rem; color: var(--text-muted);
+    }
+    .picker-year input {
+        display: none; width: 52px; padding: 3px 6px; border-radius: 6px;
+        background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(var(--accent-rgb), 0.6);
+        color: var(--text-primary); font-size: 0.72rem; font-family: inherit; outline: none;
+    }
+    .picker-year.editing input { display: block; }
+    .picker-year.editing #pickerYearText { display: none; }
+    .picker-year-edit {
+        display: flex; align-items: center; justify-content: center;
+        width: 22px; height: 22px; border-radius: 50%; border: none; cursor: pointer;
+        background: rgba(255, 255, 255, 0.06); color: var(--text-muted);
+    }
+    .picker-year-edit:hover { color: var(--text-primary); }
+    .picker-field label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .picker-field input {
+        width: 100%; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px; padding: 11px 12px; color: var(--text-primary); font-size: 0.95rem;
+        font-family: inherit; outline: none;
+    }
+    .picker-field input:focus { border-color: rgba(var(--accent-rgb), 0.6); }
+    .picker-error { min-height: 1.2em; margin: 8px 0 10px; font-size: 0.72rem; color: var(--accent-light); text-align: center; }
+    .picker-buttons { display: flex; gap: 8px; }
+    .picker-buttons button {
+        flex: 1; padding: 10px; border-radius: 10px; border: none; font-size: 0.78rem;
+        font-weight: 700; cursor: pointer; font-family: inherit;
+    }
+    .picker-cancel { background: rgba(255, 255, 255, 0.06); color: #cfc9e6; }
+    .picker-open { background: var(--accent); color: #fff; }
 </style>
 </head>
 <body>
@@ -224,6 +288,32 @@
         </div>
     </div>
 
+    <div class="add-week-row">
+        <button type="button" class="add-week-btn" id="openWeekPicker"><span class="plus">+</span>Check in for another week</button>
+    </div>
+
+    <div class="picker-overlay" id="pickerOverlay">
+        <div class="picker-box">
+            <div class="picker-year">
+                <span id="pickerYearText"></span>
+                <input id="pickerYear" type="text" inputmode="numeric" maxlength="4" aria-label="Year" />
+                <button type="button" class="picker-year-edit" id="pickerYearEdit" aria-label="Change year">
+                    <svg viewBox="0 0 24 24" width="12" height="12"><path d="M4 20h4L19 9l-4-4L4 16v4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+                </button>
+            </div>
+            <h3>Check in for a week</h3>
+            <div class="picker-field">
+                <label for="pickerWeek">Week</label>
+                <input id="pickerWeek" type="text" inputmode="numeric" maxlength="2" placeholder="25" />
+            </div>
+            <p class="picker-error" id="pickerError"></p>
+            <div class="picker-buttons">
+                <button type="button" class="picker-cancel" id="pickerCancel">Cancel</button>
+                <button type="button" class="picker-open" id="pickerOpen">Open</button>
+            </div>
+        </div>
+    </div>
+
     <div class="nav-wrap">
         <div class="fab-float">+</div>
         <div class="bottom-nav">
@@ -252,5 +342,37 @@
     });
 </script>
 
+<script>
+    // Mockup only: shows the dialog and its checks. In the app, Open goes
+    // straight to Check-in for that week.
+    const overlay = document.getElementById('pickerOverlay');
+    const weekInput = document.getElementById('pickerWeek');
+    const yearInput = document.getElementById('pickerYear');
+    const errorText = document.getElementById('pickerError');
+    const yearText = document.getElementById('pickerYearText');
+    const yearBox = document.querySelector('.picker-year');
+    document.getElementById('pickerYearEdit').addEventListener('click', function () {
+        yearBox.classList.add('editing');
+        yearInput.focus();
+        yearInput.select();
+    });
+    document.getElementById('openWeekPicker').addEventListener('click', function () {
+        weekInput.value = '';
+        yearInput.value = new Date().getFullYear();
+        yearText.textContent = yearInput.value;
+        yearBox.classList.remove('editing');
+        errorText.textContent = '';
+        overlay.classList.add('open');
+        weekInput.focus();
+    });
+    document.getElementById('pickerCancel').addEventListener('click', function () { overlay.classList.remove('open'); });
+    overlay.addEventListener('click', function (e) { if (e.target === overlay) overlay.classList.remove('open'); });
+    document.getElementById('pickerOpen').addEventListener('click', function () {
+        const week = Number(weekInput.value);
+        if (!Number.isInteger(week) || week < 1 || week > 53) { errorText.textContent = 'Enter a week between 1 and 53.'; return; }
+        overlay.classList.remove('open');
+        alert('(Mockup) Opens Check-in for week ' + week + ', ' + yearInput.value);
+    });
+</script>
 </body>
 </html>

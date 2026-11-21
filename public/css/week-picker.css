@@ -1,0 +1,104 @@
+/* "Check in for another week" box on the Calendar page - see js/week-picker.js.
+   Same box and buttons as the "Are you sure" dialog in checkin-save.css. */
+.week-picker-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000; /* above the bottom nav (900) */
+    background: rgba(0, 0, 0, 0.55);
+    align-items: center;
+    justify-content: center;
+}
+.week-picker-overlay.open {
+    display: flex;
+}
+.week-picker-box {
+    position: relative;
+    width: 280px;
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 20px;
+}
+.week-picker-box h3 {
+    margin: 0 0 14px;
+    font-size: 1rem;
+    text-align: left;
+}
+
+/* Year sits small in the corner - almost always this year, editable via the pencil. */
+.week-picker-year {
+    position: absolute;
+    top: 17px; /* level with the title */
+    right: 16px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+}
+.week-picker-year input {
+    display: none;
+    width: 52px;
+    padding: 3px 6px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(var(--accent-rgb), 0.6);
+    color: var(--text-primary);
+    font-size: 0.72rem;
+    font-family: inherit;
+    outline: none;
+}
+.week-picker-year.editing input {
+    display: block;
+}
+.week-picker-year.editing #weekPickerYearText {
+    display: none;
+}
+.week-picker-year-edit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-muted);
+}
+.week-picker-year-edit:hover {
+    color: var(--text-primary);
+}
+
+.week-picker-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.week-picker-field label {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.week-picker-field input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 11px 12px;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    font-family: inherit;
+    outline: none;
+}
+.week-picker-field input:focus {
+    border-color: rgba(var(--accent-rgb), 0.6);
+}
+.week-picker-error {
+    min-height: 1.2em;
+    margin: 8px 0 10px;
+    font-size: 0.72rem;
+    color: var(--accent-light);
+    text-align: center;
+}
