@@ -9,6 +9,7 @@
 
 import { getWeekNumber } from './date-utils.js';
 import { hasPhoto, photoUrl, deletePhoto } from './photos-ui.js';
+import { openPhotoViewer } from './photo-viewer.js';
 
 const ANGLES = ['front', 'side', 'back'];
 const ANGLE_LABELS = { front: 'Front', side: 'Side', back: 'Back' };
@@ -174,11 +175,20 @@ export function buildPhotoCarousel(wrapEl, cardLayerEl, hintEl, weekMondays, onP
         targetPos = Math.max(0, Math.min(weekMondays.length - 1, current - dragOffsetPx / CARD_SPACING));
     });
 
-    function endDrag() {
+    function endDrag(event) {
         if (!isDragging) {
             return;
         }
         isDragging = false;
+
+        // A press that barely moved is a tap, not a drag - open that photo big.
+        // Pointer capture sends every event to wrapEl, so look up what was under the finger.
+        if (event.type === 'pointerup' && Math.abs(event.clientX - dragStartX) < 6) {
+            const tapped = document.elementFromPoint(event.clientX, event.clientY);
+            if (tapped && tapped.tagName === 'IMG') {
+                openPhotoViewer(tapped.src);
+            }
+        }
         wrapEl.classList.remove('dragging');
         current = Math.max(0, Math.min(weekMondays.length - 1, Math.round(targetPos)));
         targetPos = current; // animationLoop() eases displayPos the rest of the way on its own

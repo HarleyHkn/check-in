@@ -43,6 +43,10 @@ Updates and changes done to the code.
   Solved: Compare now shows the first photo week next to the latest, with the labels changed to match.
   Files: `public/js/photos-page.js`, `public/index.html`
   Changed: 2026-11-21
+- Photos in the carousel and in Compare were cropped, and there was no way to see a photo larger.
+  Solved: the photos now show in full, tapping one opens it full screen, and the Compare label says LATEST.
+  Files: `public/css/photos.css`, `public/css/photo-viewer.css`, `public/js/photo-viewer.js`, `public/js/photos-carousel.js`, `public/js/photos-page.js`, `public/index.html`
+  Changed: 2026-11-21
 
 ### Fixed
 - `npm audit` found 5 known security holes in packages the app uses (multer, sharp, body-parser, proxy-addr, qs).

@@ -33,6 +33,7 @@
     <link rel="stylesheet" href="css/overview.css" />
     <link rel="stylesheet" href="css/calendar.css" />
     <link rel="stylesheet" href="css/photos.css" />
+    <link rel="stylesheet" href="css/photo-viewer.css" />
     <link rel="stylesheet" href="css/graph.css" />
   </head>
   <body>
@@ -212,12 +213,18 @@
             <div class="range" id="compareLastRange"></div>
           </div>
           <div class="compare-card">
-            <div class="tag">CURRENT</div>
+            <div class="tag">LATEST</div>
             <img id="compareCurrentImg" alt="Current week's photo" />
             <div class="range" id="compareCurrentRange"></div>
           </div>
         </div>
         <div class="shared-pills" id="comparePills"></div>
+      </div>
+
+      <!-- Full-screen view of a tapped photo. See js/photo-viewer.js. -->
+      <div class="photo-viewer" id="photoViewer">
+        <button type="button" class="photo-viewer-close" aria-label="Close">&times;</button>
+        <img id="photoViewerImg" alt="Enlarged photo" />
       </div>
     </div>
 

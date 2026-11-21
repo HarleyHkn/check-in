@@ -8,6 +8,7 @@
 import { getWeekNumber, parseDateKey } from './date-utils.js';
 import { photoList, hasPhoto, photoUrl } from './photos-ui.js';
 import { buildPhotoCarousel } from './photos-carousel.js';
+import { openPhotoViewer } from './photo-viewer.js';
 
 const ANGLES = ['front', 'side', 'back'];
 const ANGLE_LABELS = { front: 'Front', side: 'Side', back: 'Back' };
@@ -89,6 +90,13 @@ export function renderPhotosPage() {
         renderCompare();
     }
 }
+
+document.getElementById('compareLastImg').addEventListener('click', function () {
+    openPhotoViewer(this.src);
+});
+document.getElementById('compareCurrentImg').addEventListener('click', function () {
+    openPhotoViewer(this.src);
+});
 
 document.getElementById('compareToggle').addEventListener('click', function () {
     compareOn = !compareOn;

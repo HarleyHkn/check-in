@@ -136,7 +136,7 @@
         -webkit-box-reflect: below 6px linear-gradient(to bottom, transparent, transparent 55%, rgba(255,255,255,0.14));
     }
 
-    .carousel-card img { width: 100%; flex: 1; object-fit: cover; display: block; }
+    .carousel-card img { width: 100%; flex: 1; min-height: 0; object-fit: contain; display: block; }
 
     .card-foot { width: 100%; padding: 8px; text-align: center; background: rgba(0,0,0,0.25); }
     .card-foot .wk { font-size: 0.75rem; font-weight: 700; }
@@ -175,11 +175,24 @@
         overflow: hidden;
         border: 1px solid rgba(255,255,255,0.08);
     }
-    .compare-card img { width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block; }
+    .compare-card img { width: 100%; aspect-ratio: 3/4; object-fit: contain; cursor: zoom-in; display: block; }
     .compare-card .tag { text-align: center; font-size: 0.65rem; font-weight: 700; padding: 6px; background: rgba(255,255,255,0.1); color: var(--text-primary); }
     .compare-card .range { text-align: center; font-size: 0.6rem; color: var(--text-muted); padding: 4px 0 8px; }
 
     .shared-pills { display: flex; gap: 6px; margin-top: 14px; }
+    /* ---------------- Enlarged photo (tap a photo to open) ---------------- */
+    .photo-viewer {
+        position: fixed; inset: 0; z-index: 1000;
+        display: none; align-items: center; justify-content: center;
+        background: rgba(0, 0, 0, 0.9); padding: 16px; cursor: zoom-out;
+    }
+    .photo-viewer.open { display: flex; }
+    .photo-viewer img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 10px; }
+    .photo-viewer-close {
+        position: absolute; top: 14px; right: 14px; width: 36px; height: 36px;
+        border: none; border-radius: 50%; background: rgba(255,255,255,0.15);
+        color: #fff; font-size: 1.3rem; cursor: pointer;
+    }
 </style>
 </head>
 <body>
@@ -222,12 +235,17 @@
             <div class="range" id="lastRange"></div>
         </div>
         <div class="compare-card">
-            <div class="tag">CURRENT</div>
+            <div class="tag">LATEST</div>
             <img id="currentImg" src="" />
             <div class="range" id="currentRange"></div>
         </div>
     </div>
     <div class="shared-pills" id="comparePills"></div>
+</div>
+
+<div class="photo-viewer" id="photoViewer">
+    <button class="photo-viewer-close" id="photoViewerClose" aria-label="Close">&times;</button>
+    <img id="photoViewerImg" alt="Enlarged photo" />
 </div>
 
 <script>
@@ -389,6 +407,12 @@
     function endDrag(e) {
         if (!isDragging) return;
         isDragging = false;
+
+        // A press that barely moved is a tap, not a drag - open that photo big.
+        if (e.type === 'pointerup' && Math.abs(dragOffsetPx) < 6) {
+            const tapped = document.elementFromPoint(e.clientX, e.clientY);
+            if (tapped && tapped.tagName === 'IMG') openPhotoViewer(tapped.src);
+        }
         wrap.style.cursor = 'grab';
 
         current = Math.max(0, Math.min(weeks.length - 1, Math.round(targetPos)));
@@ -398,6 +422,19 @@
 
     wrap.addEventListener('pointerup', endDrag);
     wrap.addEventListener('pointercancel', endDrag);
+
+    // ---------------- Enlarged photo ----------------
+    const viewer = document.getElementById('photoViewer');
+    function openPhotoViewer(src) {
+        document.getElementById('photoViewerImg').src = src;
+        viewer.classList.add('open');
+    }
+    viewer.addEventListener('click', function () { viewer.classList.remove('open'); });
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') viewer.classList.remove('open');
+    });
+    document.getElementById('lastImg').addEventListener('click', function () { openPhotoViewer(this.src); });
+    document.getElementById('currentImg').addEventListener('click', function () { openPhotoViewer(this.src); });
 
     // ---------------- Compare mode ----------------
     let compareOn = false;
