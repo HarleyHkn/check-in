@@ -53,6 +53,10 @@ Updates and changes done to the code.
   Changed: 2026-11-21
 
 ### Fixed
+- In the Photos carousel, the cards sat too low and to the right, so they covered the "Week X of Y" text below.
+  Solved: the cards are now centred in the carousel area.
+  File: `public/css/photos.css`
+  Fixed: 2026-11-21
 - Looking up week 53 of a year could return the last week of the year before.
   Solved: the lookup now only accepts a Monday in the year asked for.
   File: `public/js/date-utils.js`

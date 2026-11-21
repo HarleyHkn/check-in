@@ -67,6 +67,11 @@
     position: absolute;
     width: 190px;
     height: 254px;
+    /* Centre each card in .carousel-wrap. The JS owns `transform`, so use
+       negative margins (half the width/height) instead of translate(-50%, -50%). */
+    top: 50%;
+    left: 50%;
+    margin: -127px 0 0 -95px;
     border-radius: 14px;
     background: var(--bg-raised);
     border: 1px solid rgba(255, 255, 255, 0.08);
