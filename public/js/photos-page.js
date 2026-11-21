@@ -15,6 +15,9 @@ const ANGLE_LABELS = { front: 'Front', side: 'Side', back: 'Back' };
 
 let compareOn = false;
 let compareAngle = 'front';
+// The angle each Compare card actually shows (falls back when a week lacks compareAngle).
+let compareFirstShownAngle = 'front';
+let compareLatestShownAngle = 'front';
 let stopCurrentCarousel = null; // stops the previous carousel's animation loop before rebuilding it
 
 // Every distinct week (Monday) that has at least one photo, oldest first -
@@ -63,10 +66,11 @@ function renderCompare() {
         document.getElementById(rangeId).textContent = 'Week ' + getWeekNumber(monday) + ' · ' +
             monday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + '–' +
             sunday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        return angleToShow;
     }
 
-    fillCard(first, 'compareLastImg', 'compareLastRange');
-    fillCard(current, 'compareCurrentImg', 'compareCurrentRange');
+    compareFirstShownAngle = fillCard(first, 'compareLastImg', 'compareLastRange');
+    compareLatestShownAngle = fillCard(current, 'compareCurrentImg', 'compareCurrentRange');
 
     const pillsWrap = document.getElementById('comparePills');
     pillsWrap.innerHTML = '';
@@ -92,10 +96,11 @@ export function renderPhotosPage() {
 }
 
 document.getElementById('compareLastImg').addEventListener('click', function () {
-    openPhotoViewer(this.src);
+    openPhotoViewer(getWeeksWithPhotos(), 0, compareFirstShownAngle);
 });
 document.getElementById('compareCurrentImg').addEventListener('click', function () {
-    openPhotoViewer(this.src);
+    const weekMondays = getWeeksWithPhotos();
+    openPhotoViewer(weekMondays, weekMondays.length - 1, compareLatestShownAngle);
 });
 
 document.getElementById('compareToggle').addEventListener('click', function () {

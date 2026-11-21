@@ -51,6 +51,10 @@ Updates and changes done to the code.
   Solved: replaced them with one "Check in for another week" button in the new style. It opens a box for the week and year, then goes straight to Check-in for that week.
   Files: `public/css/calendar.css`, `public/css/week-picker.css`, `public/js/week-picker.js`, `public/js/calendar.js`, `public/js/auth-ui.js`, `public/js/app.js`, `public/index.html`
   Changed: 2026-11-21
+- An enlarged photo showed no week or date, and you had to close it to see another week.
+  Solved: the week and dates now show under the photo, and you can swipe, use the coral arrow buttons or the arrow keys to step through the weeks in the same angle.
+  Files: `public/js/photo-viewer.js`, `public/css/photo-viewer.css`, `public/js/photos-carousel.js`, `public/js/photos-page.js`, `public/index.html`, `mockups/approved/photos.html`
+  Changed: 2026-11-21
 
 ### Fixed
 - Showing the whole photo in the Photos carousel and Compare made the photos small, with dark bars around them.

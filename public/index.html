@@ -245,8 +245,21 @@
 
       <!-- Full-screen view of a tapped photo. See js/photo-viewer.js. -->
       <div class="photo-viewer" id="photoViewer">
-        <button type="button" class="photo-viewer-close" aria-label="Close">&times;</button>
-        <img id="photoViewerImg" alt="Enlarged photo" />
+        <button type="button" class="photo-viewer-close" id="photoViewerClose" aria-label="Close">&times;</button>
+        <div class="photo-viewer-stage">
+          <button type="button" class="photo-viewer-arrow" id="photoViewerPrev" aria-label="Previous week">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <img id="photoViewerImg" alt="Enlarged photo" />
+          <button type="button" class="photo-viewer-arrow" id="photoViewerNext" aria-label="Next week">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+        <div class="photo-viewer-caption">
+          <div class="photo-viewer-week" id="photoViewerWeek"></div>
+          <div class="photo-viewer-range" id="photoViewerRange"></div>
+          <div class="photo-viewer-hint" id="photoViewerHint"></div>
+        </div>
       </div>
     </div>
 

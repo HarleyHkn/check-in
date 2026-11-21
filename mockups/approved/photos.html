@@ -122,6 +122,7 @@
         position: absolute;
         width: 190px;
         height: 254px;
+        top: 50%; left: 50%; margin: -127px 0 0 -95px; /* centred, same as the app */
         border-radius: 14px;
         background: var(--bg-raised);
         border: 1px solid rgba(255,255,255,0.08);
@@ -187,7 +188,33 @@
         background: rgba(0, 0, 0, 0.9); padding: 16px; cursor: zoom-out;
     }
     .photo-viewer.open { display: flex; }
-    .photo-viewer img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 10px; }
+    .photo-viewer { flex-direction: column; gap: 12px; touch-action: pan-y; user-select: none; }
+    /* Photo with the prev/next buttons right beside it */
+    .photo-viewer-stage {
+        display: flex; align-items: center; justify-content: center; gap: var(--arrow-gap);
+        --arrow-gap: clamp(16px, 11vw, 110px); /* far out on desktop, tight on a phone */
+        width: 100%;
+    }
+    .photo-viewer img {
+        min-width: 0; max-width: calc(100% - 88px - 2 * var(--arrow-gap)); max-height: calc(100vh - 140px); /* room for the caption */ object-fit: contain; border-radius: 10px;
+        transition: transform 0.25s ease, opacity 0.25s ease; -webkit-user-drag: none;
+    }
+    .photo-viewer img.dragging { transition: none; }
+    .photo-viewer-caption { text-align: center; }
+    .photo-viewer-week { font-weight: 700; font-size: 0.95rem; color: var(--text-primary); }
+    .photo-viewer-range { font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; }
+    .photo-viewer-hint { font-size: 0.62rem; color: var(--text-dim); margin-top: 6px; }
+    /* Prev/next: same coral gradient + glow as the + button */
+    .photo-viewer-arrow {
+        flex: 0 0 auto;
+        width: 44px; height: 44px; border-radius: 50%; border: none; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent) 50%, var(--accent-red) 100%);
+        box-shadow: 0 6px 16px rgba(var(--accent-rgb), 0.45);
+        color: #fff; transition: opacity 0.2s, transform 0.15s;
+    }
+    .photo-viewer-arrow:active { transform: scale(0.92); }
+    .photo-viewer-arrow:disabled { opacity: 0.25; cursor: default; box-shadow: none; }
     .photo-viewer-close {
         position: absolute; top: 14px; right: 14px; width: 36px; height: 36px;
         border: none; border-radius: 50%; background: rgba(255,255,255,0.15);
@@ -245,7 +272,20 @@
 
 <div class="photo-viewer" id="photoViewer">
     <button class="photo-viewer-close" id="photoViewerClose" aria-label="Close">&times;</button>
+    <div class="photo-viewer-stage">
+    <button class="photo-viewer-arrow photo-viewer-prev" id="photoViewerPrev" aria-label="Previous week">
+        <svg viewBox="0 0 24 24" width="20" height="20"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
     <img id="photoViewerImg" alt="Enlarged photo" />
+    <button class="photo-viewer-arrow photo-viewer-next" id="photoViewerNext" aria-label="Next week">
+        <svg viewBox="0 0 24 24" width="20" height="20"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    </div>
+    <div class="photo-viewer-caption">
+        <div class="photo-viewer-week" id="photoViewerWeek"></div>
+        <div class="photo-viewer-range" id="photoViewerRange"></div>
+        <div class="photo-viewer-hint" id="photoViewerHint"></div>
+    </div>
 </div>
 
 <script>
@@ -411,7 +451,11 @@
         // A press that barely moved is a tap, not a drag - open that photo big.
         if (e.type === 'pointerup' && Math.abs(dragOffsetPx) < 6) {
             const tapped = document.elementFromPoint(e.clientX, e.clientY);
-            if (tapped && tapped.tagName === 'IMG') openPhotoViewer(tapped.src);
+            if (tapped && tapped.tagName === 'IMG') {
+                const card = tapped.closest('.carousel-card');
+                const index = Array.prototype.indexOf.call(card.parentNode.children, card);
+                openPhotoViewer(index, cardAngle[index]);
+            }
         }
         wrap.style.cursor = 'grab';
 
@@ -424,17 +468,94 @@
     wrap.addEventListener('pointercancel', endDrag);
 
     // ---------------- Enlarged photo ----------------
+    // Swipe left/right (or arrow keys) to step through weeks in the same angle;
+    // weeks without that angle are skipped. Tap without dragging closes.
     const viewer = document.getElementById('photoViewer');
-    function openPhotoViewer(src) {
-        document.getElementById('photoViewerImg').src = src;
+    const viewerImg = document.getElementById('photoViewerImg');
+    let viewerWeek = 0;
+    let viewerAngle = 'front';
+
+    function showViewerWeek() {
+        const week = weeks[viewerWeek];
+        viewerImg.src = IMG[viewerAngle];
+        document.getElementById('photoViewerWeek').textContent = week.label;
+        document.getElementById('photoViewerRange').textContent = week.range;
+        const withAngle = weeks.filter(function (w) { return w.angles.includes(viewerAngle); });
+        const position = withAngle.indexOf(week) + 1;
+        document.getElementById('photoViewerHint').textContent =
+            viewerAngle.charAt(0).toUpperCase() + viewerAngle.slice(1) + ' · ' + position + ' of ' + withAngle.length + ' · swipe to browse';
+        document.getElementById('photoViewerPrev').disabled = position === 1;
+        document.getElementById('photoViewerNext').disabled = position === withAngle.length;
+    }
+
+    function openPhotoViewer(weekIndex, angle) {
+        viewerWeek = weekIndex;
+        viewerAngle = weeks[weekIndex].angles.includes(angle) ? angle : weeks[weekIndex].angles[0];
+        showViewerWeek();
         viewer.classList.add('open');
     }
-    viewer.addEventListener('click', function () { viewer.classList.remove('open'); });
-    document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') viewer.classList.remove('open');
+
+    // step = -1 (older) or +1 (newer). Returns false at either end.
+    function stepViewer(step) {
+        for (let i = viewerWeek + step; i >= 0 && i < weeks.length; i += step) {
+            if (weeks[i].angles.includes(viewerAngle)) {
+                viewerWeek = i;
+                // slide the new photo in from the side it came from
+                viewerImg.classList.add('dragging');
+                viewerImg.style.transform = 'translateX(' + (step * 60) + 'px)';
+                viewerImg.style.opacity = '0';
+                showViewerWeek();
+                requestAnimationFrame(function () {
+                    viewerImg.classList.remove('dragging');
+                    viewerImg.style.transform = '';
+                    viewerImg.style.opacity = '';
+                });
+                return true;
+            }
+        }
+        return false;
+    }
+
+    let viewerStartX = null;
+    let viewerDragged = false;
+    // Buttons step weeks; stopPropagation so the click doesn't also close the viewer.
+    document.getElementById('photoViewerPrev').addEventListener('click', function (e) { e.stopPropagation(); stepViewer(-1); });
+    document.getElementById('photoViewerNext').addEventListener('click', function (e) { e.stopPropagation(); stepViewer(+1); });
+    document.getElementById('photoViewerClose').addEventListener('click', function (e) { e.stopPropagation(); viewer.classList.remove('open'); });
+
+    viewer.addEventListener('pointerdown', function (e) {
+        if (e.target.closest('button')) return; // buttons are clicks, not the start of a swipe
+        viewerStartX = e.clientX;
+        viewerDragged = false;
+        viewerImg.classList.add('dragging');
     });
-    document.getElementById('lastImg').addEventListener('click', function () { openPhotoViewer(this.src); });
-    document.getElementById('currentImg').addEventListener('click', function () { openPhotoViewer(this.src); });
+    viewer.addEventListener('pointermove', function (e) {
+        if (viewerStartX === null) return;
+        const dx = e.clientX - viewerStartX;
+        if (Math.abs(dx) > 6) viewerDragged = true;
+        viewerImg.style.transform = 'translateX(' + dx + 'px)';
+    });
+    viewer.addEventListener('pointerup', function (e) {
+        if (viewerStartX === null) return;
+        const dx = e.clientX - viewerStartX;
+        viewerStartX = null;
+        viewerImg.classList.remove('dragging');
+        viewerImg.style.transform = '';
+        // drag left = newer week, drag right = older week, like the carousel
+        if (dx < -50) stepViewer(+1);
+        else if (dx > 50) stepViewer(-1);
+    });
+    viewer.addEventListener('click', function () {
+        if (!viewerDragged) viewer.classList.remove('open');
+    });
+    document.addEventListener('keydown', function (e) {
+        if (!viewer.classList.contains('open')) return;
+        if (e.key === 'Escape') viewer.classList.remove('open');
+        if (e.key === 'ArrowLeft') stepViewer(-1);
+        if (e.key === 'ArrowRight') stepViewer(+1);
+    });
+    document.getElementById('lastImg').addEventListener('click', function () { openPhotoViewer(0, compareAngle); });
+    document.getElementById('currentImg').addEventListener('click', function () { openPhotoViewer(weeks.length - 1, compareAngle); });
 
     // ---------------- Compare mode ----------------
     let compareOn = false;

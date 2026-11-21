@@ -186,7 +186,8 @@ export function buildPhotoCarousel(wrapEl, cardLayerEl, hintEl, weekMondays, onP
         if (event.type === 'pointerup' && Math.abs(event.clientX - dragStartX) < 6) {
             const tapped = document.elementFromPoint(event.clientX, event.clientY);
             if (tapped && tapped.tagName === 'IMG') {
-                openPhotoViewer(tapped.src);
+                const tappedIndex = cardElements.findIndex(function (el) { return el.root.contains(tapped); });
+                openPhotoViewer(weekMondays, tappedIndex, cardAngle[tappedIndex]);
             }
         }
         wrapEl.classList.remove('dragging');
